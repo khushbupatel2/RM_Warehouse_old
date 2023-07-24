@@ -1,0 +1,181 @@
+﻿@page
+@model RM_Warehouse.Pages.NotesModel
+@{
+    ViewData["Title"] = "Notes";
+}
+@using System.Data;
+
+@*BELOW CODE SHOWS ALERT MESSAGE FROM CODE BEHIND*@
+
+@if (TempData["ConfirmationMessage"] != null)
+{
+    <script type="text/javascript">
+        window.onload = function () {
+            alert("@TempData["ConfirmationMessage"]");
+
+        };
+    </script>
+}
+
+<h4>NOTES PAGE</h4>
+
+@*BELOW FORM DOES INSERT OR UPADTE NOTE.IT ACCEPTS Note_Description FIELD AND CALLS SUBMIT OR CANCEL METHODS.*@
+
+@if (Model.flag_notes_form)
+{
+    <h4>Notes Entry Form</h4>
+    <span style="color:red;">@Model.Msg</span>
+    <br />
+    <form method="post">
+        @if (NotesModel.Note_ID != 0)
+        {
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="Note_ID">Note ID:</label></div>
+                <div class="col-8 col-md-4">@NotesModel.Note_ID</div>
+        </div>
+        }
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Note_Description">Note Description:</label></div>
+            <div class="col-8 col-md-4"><textarea asp-for="@Model.Note_Description" rows="3" cols="50"></textarea></div>
+        </div>
+            <div class="row">
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Submit">
+                    <i class="fas fa-save" style="color:green;" title="SAVE NOTE"></i>
+                </button>
+
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Cancel">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                </button>
+            </div>
+        </div>
+    </form>
+}
+
+@if (Model.flag_notes)
+{
+    @*BELOW FORM CALLS Add_Note METHOD AND OPENS NOTES FORM WITH EMPTY VALUES
+    *@ 
+
+    <span style="float:left;">
+        <form method="post">
+            <button asp-page-handler="Add_Note">
+                <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW NOTE"></i>
+            </button>
+        </form>
+    </span>
+
+    <br />
+    <a href="Notes">Show All Notes.</a>
+
+    <br />
+
+    @*BELOW GRID SHOWS ALL INCOMPLETE NOTES.
+        IT HAS 2 BUTTONS IN EACH ROW,
+        1.EDIT NOTE WHICH OPENS NOTES FORM WITH UPDATE
+        2.COMPLETE NOTE WHICH OPENS NOTES COMPLETE FORM.
+    *@ 
+
+    @if (NotesModel.DT != null)
+    {
+        <div class="table-responsive" style="max-height:375px;">
+            <h4>Notes Master</h4>
+            <table class="table table-bordered" style="width:1000px;font-size:small;">
+
+                <thead class="FixedHeader">
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>ID</td>
+                        <td>NOTE DESCRIPTION</td>
+                        <td>NOTE BY</td>
+                        <td>NOTE DATE</td>
+                                                
+                    </tr>
+                </thead>
+                <tbody class="tbody_row">
+
+                    @try
+                    {
+                        @foreach (DataRow row in NotesModel.DT.Rows)
+                        {
+
+                            <tr>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Edit" asp-route-id="@row["ID"]" asp-route-note_desc_1="@row["Note_Desc"]">
+                                            <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT NOTE"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Complete" asp-route-id="@row["ID"]" asp-route-note_desc_1="@row["Note_Desc"]">
+                                            <i class="fas fa-tasks" style="color:blue;" title="COMPLETE NOTE"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>@row["ID"]</td>
+                                <td>@row["Note_Desc"]</td>
+                                <td>@row["Note_By"]</td>
+                                <td>@row["Note_date"]</td>
+                               
+                            </tr>
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <br />
+        <span style="color:red;">NO RECORDS ARE FOUND</span>
+    }
+}
+
+@*BELOW FORM IS NOTES COMPLETE FORM,IT ACCEPTS Complete_Comments FIELD AND DOES SUBMIT OR CANCEL ACTIONS.*@
+
+@if(Model.flag_complete)
+{
+    <h4>Notes Complete Form</h4>
+    <span style="color:red;">@Model.Msg_Complete</span>
+    <br />
+    <form method="post">
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Note_ID_Complete">Note ID:</label></div>
+                <div class="col-8 col-md-4">@NotesModel.Note_ID_Complete</div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Note_Description_Complete">Note Description:</label></div>
+            <div class="col-8 col-md-4">@NotesModel.Note_Description_Complete</div>
+        </div>
+
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Complete_Comments">Complete Comments:</label></div>
+            <div class="col-8 col-md-4"><textarea asp-for="@Model.Complete_Comments" rows="3" cols="50"></textarea></div>
+        </div>
+            <div class="row">
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitComments">
+                    <i class="fas fa-save" style="color:green;" title="SAVE COMPLETE COMMENTS"></i>
+                </button>
+
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="CancelComments">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                </button>
+            </div>
+        </div>
+    </form>
+}

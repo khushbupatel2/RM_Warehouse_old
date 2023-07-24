@@ -1,0 +1,173 @@
+﻿@page
+@model RM_Warehouse.Pages.Receive_OrderModel
+@{
+    ViewData["Title"] = "Receive Order";
+}
+@using System.Data;
+
+@*BELOW CODE WORKS FOR NESTED DATATABLES - COLLAPSE AND SHOW*@
+
+<script>
+    $(document).ready(function () {
+        $(".toptable tr.nested").hide();
+        $(".toptable td.showHide").on('click', function () {
+            if ($(this).html() == '+') {
+                $(this).html('-');
+                $(this).parent('tr').next('tr.nested').show();
+            }
+            else {
+                $(this).html('+');
+                $(this).parent('tr').next('tr.nested').hide();
+            }
+        });
+    });
+</script>
+
+@*BELOW CODE SHOWS ALERT MESSAGE FROM CODE BEHIND*@
+
+@if (TempData["ConfirmationMessage"] != null)
+{
+    <script type="text/javascript">
+        window.onload = function () {
+            alert("@TempData["ConfirmationMessage"]");
+        };
+    </script>
+}
+@if (Model.flag_orders)
+{
+    @*BELOW GRID SHOWS ALL INBOUND CREATED ORDERS WITH DETAILS ITEMS.
+        IT ALSO ACCEPTS USER INPUTS LIKE RECEIVED_QUANTITY,
+        RECEIVED_DATE AND EXPIRY_DATE FOR DETAILS ITEMS FOR EACH ROW.
+        ALSO,IT HAS CHECKBOX TO SELECT A DETAILS ROW.ONLY CHECKED ROWS WILL BE PROCESSED.
+        ON BOTTOM OF NESTED DETAILS GRID,RECEIVE ORDER BUTTON IS PRESENT FOR SUBMIT ACTION.
+    *@
+
+
+    @if (Receive_OrderModel.dt_orders != null)
+    {
+        <h4>ORDERS TO BE RECEIVED</h4>
+        <form method="POST">
+        <div class="table-responsive" style="max-height:450px;font-size:small;">
+            <table class="table table-bordered table-striped toptable" height="30%">
+                <thead class="FixedHeader">
+                    <tr>
+                        <td></td>
+                        <td>ORDER_ID</td>
+                        <td>ORDER_DATE</td>
+                        <td>PONUMBER</td>
+                        <td>ESTIMATED ARRIVAL DATE</td>
+                        <td>VENDOR NAME</td>
+                        <td>ENTER_DATE</td>
+                        <td>ENTER_BY</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @try
+                    {
+                        @foreach (DataRow row in Receive_OrderModel.dt_orders.Rows)
+                        {
+                            <tr class="accordion">
+                                    <td class="showHide" style="cursor: pointer;font-size:x-large;">
+                                    +
+                                </td>
+                                <td>@row["ORDER_ID"]</td>
+                                <td>@row["ORDER_DATE"]</td>
+                                <td>@row["PONUMBER"]</td>
+                                <td>@row["ESTIMATED_ARRIVAL_DATE"]</td>
+                                <td>@row["Vendor_Name"]</td>
+                                <td>@row["ENTER_DATE"]</td>
+                                <td>@row["ENTER_BY"]</td>
+                            </tr>
+                            <tr class="nested">
+                                <td colspan="9">
+                                    @try
+                                    {
+                                        @foreach (DataTable table_1 in Receive_OrderModel.nested_tables.Tables)
+                                        {
+                                            @if (table_1.TableName == row["ORDER_ID"].ToString())
+                                            {
+                                                <div class="table-responsive" style="max-height:450px;font-size:small;">                                            
+                                                    <table class="table table-bordered table-striped" height="30%">
+                                                        <thead class="LightGreen">
+                                                            <tr>
+                                                                <td></td>
+                                                                <td>ID</td>
+                                                                <td>ORDER_ID</td>
+                                                                <td>ITEM CODE</td>
+                                                                <td>ITEM_DESCRIPTION</td>
+                                                                <td>ORDERED QUANTITY</td>
+                                                                <td>COST</td>
+                                                                <td>CURRENCY</td>
+                                                                <td>RECEIVED_QUANTITY</td>
+                                                                <td>RECEIVED_DATE</td>
+                                                                <td>EXPIRY_DATE</td>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody> 
+                                                            @foreach (DataRow row_nested in table_1.Rows)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        <input name="AreChecked" type="checkbox" value="@row_nested["ID"]" />
+                                                                    </td>
+                                                                    <td><input asp-for="@Model.Id" value="@row_nested["ID"]" type="hidden" />@row_nested["ID"]</td>
+                                                                    <td>@row_nested["ORDER_ID"]</td>
+                                                                    <td>@row_nested["Item_Code"]</td>
+                                                                    <td>@row_nested["Item_Desc"]</td>
+                                                                    <td>@row_nested["ORDERED_QUANTITY"]</td>
+                                                                    <td>@row_nested["COST"]</td>
+                                                                    <td>@row_nested["CURRENCY"]</td>
+                                                                        <td><input type="number" asp-for="@Model.Received_Quantity" value="@row_nested["ORDERED_QUANTITY"]" onkeypress="return event.keyCode != 13;" /></td>
+                                                                        <td><input asp-for="@Model.Received_Date" type="datetime-local" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")" onkeypress="return event.keyCode != 13;" /></td>
+                                                                        <td><input asp-for="@Model.Expiry_Date" value=null onkeypress="return event.keyCode != 13;" /></td>
+                                                                </tr>
+
+
+                                                            }
+                                                            <tr>
+                                                                <td>
+                                                                    <button asp-page-handler="ReceiveOrder" onclick="spinner();" asp-route-order_id_1="@row["ORDER_ID"]">
+                                                                        <i class="fa-solid fa-gift" style="color:blue;" title="RECEIVE ORDER"></i>
+                                                                    </button>
+
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                               
+                                            }
+
+                                        }
+                                    }
+
+                                    catch (NullReferenceException ex)
+                                    {
+                                        return;
+                                    }
+                                </td>
+                            </tr>
+
+
+
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+                </tbody>
+            </table>
+        </div>
+        </form>
+    }
+    else
+    {
+        <br />
+        <span style="color:red;">NO RECORDS ARE FOUND</span>
+    }
+}
+
+

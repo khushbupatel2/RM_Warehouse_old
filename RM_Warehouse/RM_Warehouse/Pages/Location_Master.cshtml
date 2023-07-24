@@ -1,0 +1,241 @@
+﻿@page
+@model RM_Warehouse.Pages.Location_MasterModel
+@{
+    ViewData["Title"] = "Location Master";
+}
+<style>
+    .clicked {
+        background-color:skyblue!important;
+    }
+</style>
+
+@*BELOW JQUERY SCRIPT CODE SETS SESSION OBJECT WITH LOCATION_CODE,
+ALSO IT CREATES SEARCHABLE DROPDOWN FOR LOCATION_CODES. 
+*@
+<script>
+    $(document).ready(function () {
+        $('.link').on('click', function () {
+            sessionStorage.setItem('thisLink', $(this).text());
+            $(this).focus();
+            
+        });
+        $('.DDL_Locations').select2();
+    });
+
+//BELOW JQUERY SCRIPT CODE GETS SESSION OBJECT FOR LOCATION_CODE AND CHANGES BACKGROUND COLOR OF THIS LOCATION_CODE ROW
+//    IN DATATABLE locations_table
+
+    $(window).on('load', function () {
+        var thisLink = sessionStorage.getItem('thisLink');
+      //    alert('load '+thisLink);
+        if (typeof thisLink != 'undefined') {
+            $('#locations_table>tbody>tr>td>a.link').each(function () {
+        //        alert('in each ' + $(this).text());
+                if (thisLink === $(this).text()) {
+                    $(this).parents('tr').addClass('clicked');
+                    return false;
+                } // "this" is the current element in the loop
+                return true;
+            });
+        }
+    });
+
+</script>
+
+
+@using System.Data;
+
+@*BELOW FORM ACCEPTS USER INPUT FROM DROPDOWN LOCATION CODES *@
+
+<form method="post">
+    <a href="Location_Master" onclick="spinner();">Show All Locations.</a>
+<div class="row">
+    <div class="col-4 col-md-2"><label for="location_id">Location Codes:</label></div>
+    <div class="col-4 col-md-2">
+            <select class="DDL_Locations" asp-for="@Model.location_id" asp-items="@(new SelectList(Location_MasterModel.locationList, "Location_ID", "Location_Code"))" style="max-width:100%;">
+            <option value=0>PICK ONE</option>
+        </select><br />
+        <span asp-validation-for="location_id" class="text-danger"></span>
+    </div>
+    <div class="col-2 col-md-1">
+        <button asp-page-handler="Search_Location">
+            <i class="fa fa-search" style="color:blue;" title="SEARCH LOCATION"></i>
+        </button>
+    </div>
+</div>
+</form>
+
+@*BELOW FORM OPENS LOCATION ENTRY FORM FOR NEW LOCATION*@
+
+    @if (Model.flag_locations)
+    {
+        <span style="float:left;">
+        <form method="post">
+            <button asp-page-handler="Add_Location">
+                <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW LOCATION"></i>
+            </button>
+        </form>
+        </span>
+
+        <br /><br/>
+
+    @*BELOW LOCATIONS GRID SHOWS DATATABLE dt_loc_all_for_wh FOR ALL LOCATIONS FOR THIS LOGIN WAREHOUSE .
+        IT HAS 2 BUTTONS IN EACH ROW.
+        1.SHOW ITEMS HYPERLINK FOR OPENING "ITEMS AT LOCATION" GRID FOR THIS LOCATION.
+        2.EDIT LOCATION.WHICH OPENS LOCATION ENTRY FORM FOR THIS LOCATION.
+        
+    *@
+
+        @if (Location_MasterModel.dt_loc_all_for_wh != null)
+        {   <h4>Location Master</h4>
+            <div class="table-responsive" style="max-height:200px;position:relative;">
+                @Location_MasterModel.warehouse_name
+                <table id="locations_table" class="table table-bordered table-striped" style="width:1000px;">
+                    <thead class="FixedHeader">
+                        <tr>
+                            <td>Location_Code</td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (DataRow row in Location_MasterModel.dt_loc_all_for_wh.Rows)
+                        {
+                            <tr>
+                                <td><a class="link" asp-page-handler="Show_Items" asp-route-location_id="@row["Location_ID"]" asp-route-location_code="@row["Location_Code"]">@row["Location_Code"]</a></td>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Edit_Location" asp-route-location_id_1="@row["Location_ID"]" asp-route-location_code_1="@row["Location_Code"]">
+                                            <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT LOCATION"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    }
+    
+<br/>
+
+@*BELOW DATATABLE dt_items_all_for_location SHOWS ALL ITEMS PRESENT AT THIS LOCATION*@ 
+
+@if(Model.flag_items)
+    {
+    
+    <br/>
+        @if (Location_MasterModel.dt_items_all_for_location != null)
+        {
+        <h4>Items At Location</h4>
+        <div class="table-responsive" style="max-height:250px;position:relative;">
+            @Location_MasterModel.location_code_1
+            <table class="table table-bordered table-striped" style="width:1000px;">
+                    <thead class="FixedHeader">
+                        <tr>
+                            <td>Item_Code</td>
+                            <td>Item_Desc</td>
+                            <td>QTY_In_Hand</td>
+                            <td>Expiry_Date</td>
+                                                       
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @try
+                        {
+                            @foreach (DataRow row in Location_MasterModel.dt_items_all_for_location.Rows)
+                            {
+                                <tr>
+                           
+                                    <td>@row["Item_Code"]</td>
+                                    <td>@row["Item_Desc"]</td>
+                                    <td>@row["QTY_In_Hand"]</td>
+                                    <td>
+                                    @if (@row["Expiry_Date"] != DBNull.Value)
+                                    {
+                                        @Convert.ToDateTime(row["Expiry_Date"]).ToString("M/d/yyyy")
+                                    }
+                                    else
+                                    {
+                                        @row["Expiry_Date"]
+                                    }
+                                    </td>
+                                                                   
+                                </tr>
+                            }
+                        }
+                        catch (NullReferenceException ex)
+                        {
+                            return;
+                        }
+
+
+                    </tbody>
+                </table>
+            </div>
+        }
+    else
+    {
+        <br />
+        <span style="color:red;">NO RECORDS ARE FOUND</span>
+    }
+    }
+
+@*BELOW FORM ACCEPTS USER INPUTS FOR NEW LOCATION OR UPDATE LOCATION.*@
+
+
+@if (Model.flag_location_form)
+{
+    <div style="position:relative;">
+       <br/>
+            <h4>Location Entry Form</h4>
+
+            <span style="color:red;" class="fs-4">@Model.Msg</span>
+            <br />
+            <form method="post">
+                <div class="row">
+                    <div class="col-4 col-md-2">
+                @if (Location_MasterModel.location_id_edit != 0)
+                {
+                    @Location_MasterModel.location_id_edit
+                }
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4 col-md-2">
+                        <label for="name">Location Code:</label>
+                    </div>
+                    <div class="col-8 col-md-3"><input type="text" asp-for="@Model.location_code" /></div>
+                </div>
+
+            <div class="row">
+                <div class="col-5 col-md-3">
+                    <label for="name">Set As Default Location:</label>
+                </div>
+                <div class="col-4 col-md-1"><input type="checkbox" asp-for="@Model.Is_Default_Location" /></div>
+            </div>
+
+
+                <div class="row">
+                    <div class="col-2 col-md-1">
+                        <button asp-page-handler="Submit">
+                            <i class="fas fa-save" style="color:green;" title="SAVE LOCATION"></i>
+                        </button>
+
+                    </div>
+                    <div class="col-2 col-md-1">
+                        <button asp-page-handler="Cancel">
+                            <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    
+}

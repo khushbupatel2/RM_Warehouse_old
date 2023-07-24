@@ -1,0 +1,58 @@
+﻿@page
+@model IndexModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+@*THIS PAGE IS FOR USER - LOGIN,IT HAS 3 INPUTS .
+1.AD USERNAME-TEXTBOX ,2 AD PASSWORD-PASSWORD TEXTBOX AND 3.WAREHOUSE DROPDOWN
+IT CALLS Submit FUNCTION TO CHECK USER CREDENTIALS AGAINST AD.
+ALSO,IT CHECKS WAREHOUSE GRANT FOR THIS USER FROM Warehouse DATABASE.
+ON SUCCESS,IT REDIRECTS TO WELCOME PAGE.,OTHERWISE IT PROMPTS ERROR MESSAGE.*@
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="~/css/login.css" type="text/css" asp-append-version="true" />
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/spinner.js"></script>
+
+</head>
+<body>
+    
+    <div class="BG_Blue">
+        <img src="~/logo.svg" class="hunter_logo" />
+
+    </div>
+
+    <br />
+    <div class="login_div">
+        <h3>Login Form</h3>
+        <form method="post" class="login_form">
+
+            <label for="Username">Username</label><br>
+            <input class="box_size" type="text" asp-for="@Model.Username" /><br>
+
+            <label for="Password">Password</label><br>
+            <input class="box_size" type="password" asp-for="@Model.Password" /><br>
+
+            <label for="warehouse_name">Warehouse Name</label>
+            <select class="box_size" asp-for="@Model.warehouse_name" asp-items="@(new SelectList(IndexModel.warehouseList, "Warehouse", "Warehouse"))">
+                        <option value="">PICK ONE</option>
+                    </select>
+            <br /><br/>
+            <button asp-page-handler="Submit" class="login_button" onclick="spinner();">Login</button>
+            <span class="error_msg">@Model.Msg</span>
+        </form>
+       
+
+    </div>
+
+    <footer>&copy;@DateTime.Now.ToString("yyyy") HUNTER EXPRESS</footer>
+    
+</body>
+</html>

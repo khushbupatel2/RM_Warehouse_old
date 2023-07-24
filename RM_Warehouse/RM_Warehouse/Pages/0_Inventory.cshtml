@@ -1,0 +1,53 @@
+﻿@page
+@model RM_Warehouse.Pages._0_InventoryModel
+@{
+    ViewData["Title"] = "Report - 0 Inventory";
+}
+
+@using System.Data;
+
+@*BELOW DATABLE (IVT) CONTAINS ALL ITEMS WITH 0 INVENTORY ,PRESENT IN OUR DATABASE *@
+
+<h4>REPORT - 0 INVENTORY</h4>
+@if (_0_InventoryModel.IVT != null)
+{
+    <div class="table-responsive" style="max-height:375px;">
+        <table class="table table-bordered" style="width:1000px;font-size:small;">
+
+            <thead class="FixedHeader">
+                <tr>
+                    @*<td>Item_ID</td>*@
+                    <td>Item_Code</td>
+                    <td>Item_Desc</td>
+
+                </tr>
+            </thead>
+            <tbody class="tbody_row">
+
+                @try
+                {
+                    @foreach (DataRow row in _0_InventoryModel.IVT.Rows)
+                    {
+
+                        <tr>
+                            @*<td>@row["Item_ID"]</td>*@
+                            <td>@row["Item_Code"]</td>
+                            <td>@row["Item_Desc"]</td>
+
+                        </tr>
+                    }
+                }
+                catch (NullReferenceException ex)
+                {
+                    return;
+                }
+
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <br />
+    <span style="color:red;">NO RECORDS ARE FOUND</span>
+}

@@ -1,0 +1,228 @@
+﻿@page
+@model RM_Warehouse.Pages.Return_To_VendorModel
+@{
+    ViewData["Title"] = "Return To Vendor";
+}
+
+@using System.Data;
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+
+    @*BELOW CODE WORKS FOR NESTED DATATABLES - COLLAPSE AND SHOW*@
+
+    <script>
+        $(document).ready(function () {
+            $(".toptable tr.nested").hide();
+            $(".toptable td.showHide").on('click', function () {
+                if ($(this).html() == '+') {
+                    $(this).html('-');
+                    $(this).parent('tr').next('tr.nested').show();
+                }
+                else {
+                    $(this).html('+');
+                    $(this).parent('tr').next('tr.nested').hide();
+                }
+            });
+            $('.Ddl_Items').select2();
+        });
+    </script>
+
+</head>
+<body>
+
+    @*BELOW CODE SHOWS ALERT MESSAGE FROM CODE BEHIND*@
+
+    @if (TempData["ConfirmationMessage"] != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                alert("@TempData["ConfirmationMessage"]");
+            };
+        </script>
+    }
+
+    @*BELOW FORM IS FOR SEARCHING INBOUND CLOSED ORDER DETAILS WITH SELECTED ITEM_CODE FROM DROPDOWN*@
+
+<form method="post">
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="item_id_search">Item Codes:</label></div>
+            <div class="col-8 col-md-4">
+                <select class="Ddl_Items" asp-for="@Model.item_id_search" asp-items="@(new SelectList(Return_To_VendorModel.itemList, "Item_ID", "Item_Code_Description"))" style="max-width:100%;">
+                    <option value=0>PICK ONE</option>
+                </select><br />
+                <span asp-validation-for="item_id_search" class="text-danger"></span>
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Search_Inbound_Order_Details">
+                    <i class="fa fa-search" style="color:blue;" title="SEARCH CLOSED ORDER DETAILS"></i>
+                </button>
+            </div>
+         </div>
+
+        @*BELOW GRID SHOWS SEARCHED INBOUND CLOSED ORDER DETAILS WITH ITEM_CODE SELECTED FROM DROPDOWN*@
+
+        @if (Model.flag_items)
+        {
+            @if (Return_To_VendorModel.dt_InBound_Details != null)
+            {
+                <h4>LIST OF CLOSED INBOUND ORDER DETAILS </h4>
+                <div class="table-responsive" style="max-height:450px;font-size:small;">
+                    <table class="table table-bordered table-striped" height="30%">
+                        <thead class="LightGreen">
+                            <tr>
+                                <td></td>
+                                <td>ID</td>
+                                <td>ORDER_ID</td>
+                                <td>RM PONUMBER</td>
+                                <td>ITEM CODE</td>
+                                <td>ITEM_DESCRIPTION</td>
+                                <td>ORDERED QUANTITY</td>
+                                <td>RECEIVED QUANTITY</td>
+                                <td>COST</td>
+                                <td>CURRENCY</td>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (DataRow row in Return_To_VendorModel.dt_InBound_Details.Rows)
+                            {
+                                <tr>
+                                    <td>
+                                        <button asp-page-handler="ReturnItemToVendor" onclick="spinner();" asp-route-id_1="@row["ID"]" asp-route-order_id_1="@row["ORDER_ID"]" asp-route-item_code_1="@row["Item_Code"]" asp-route-item_desc_1="@row["Item_Desc"]" asp-route-ordered_quantity_1="@row["ORDERED_QUANTITY"]" asp-route-received_quantity_1="@row["RECEIVED_QUANTITY"]" asp-route-cost_1="@row["COST"]" asp-route-currency_1="@row["CURRENCY"]" asp-route-ponumber_1="@row["PONUMBER"]" asp-route-item_id_1="@row["Item_ID"]">
+                                            <i class="fa fa-undo" style="color:blue;" title="RETURN TO VENDOR"></i>
+                                        </button>
+                                    </td>
+                                    <td>@row["ID"]</td>
+                                    <td>@row["ORDER_ID"]</td>
+                                    <td>@row["PONUMBER"]</td>
+                                    <td>@row["Item_Code"]</td>
+                                    <td>@row["Item_Desc"]</td>
+                                    <td>@row["ORDERED_QUANTITY"]</td>
+                                    <td>@row["RECEIVED_QUANTITY"]</td>
+                                    <td>@row["COST"]</td>
+                                    <td>@row["CURRENCY"]</td>
+                                </tr>
+
+
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <br />
+                <span style="color:red;">NO RECORDS ARE FOUND</span>
+            }
+        }
+      
+@*BELOW FORM IS ITEM RETURN FORM.IT HAS LOCATIONS GRID WITH QTY_IN_HAND.IT ACCEPTS INPUTS RETURN_QUANTITY FOR EACH 
+CEHECKED ROW.ONLY CHECKED ROWS ARE PROCESSED.IT HAS ReturnItems BUTTON FOR SUBMIT PURPOSE. *@
+
+
+@if (Model.flag_item_return_form)
+{
+    <h4>RETURN TO VENDOR FORM</h4>
+    <span style="color:red;" class="fs-4">@Model.Msg_Item_Return_Form</span>
+
+    <div class="row">
+            <div class="col-4 col-md-2"><label for="Item_Code">Item Code:</label></div>
+            <div class="col-8 col-md-4">@Return_To_VendorModel.Item_Code</div>
+        <div class="col-4 col-md-2"><label for="Ordered_Quantity">Ordered Quantity</label></div>
+            <div class="col-8 col-md-4">@Return_To_VendorModel.Ordered_Quantity</div>
+    </div>
+    <div class="row">
+            <div class="col-4 col-md-2"><label for="Received_Quantity">Received Quantity:</label></div>
+            <div class="col-8 col-md-4">@Return_To_VendorModel.Received_Quantity</div>
+        <div class="col-4 col-md-2">
+            <label for="Cost">Unit Item Price:</label>
+        </div>
+            <div class="col-8 col-md-4">@Return_To_VendorModel.Cost</div>
+
+    </div>
+    <div class="row">
+        <div class="col-4 col-md-2"><label for="Currency">Item Currency:</label></div>
+            <div class="col-8 col-md-4">@Return_To_VendorModel.Currency</div>
+
+                <div class="col-4 col-md-2"><label for="PONumber">PONumber:</label></div>
+                <div class="col-8 col-md-4">@Return_To_VendorModel.PONumber</div>
+    </div>
+    
+}
+
+@if (Model.flag_locations)
+{
+    @if (Return_To_VendorModel.dt_locations != null)
+    {
+        <div class="table-responsive" style="max-height:450px;font-size:small;">
+            <table class="table table-bordered table-striped toptable" height="30%">
+                <thead class="FixedHeader">
+                    <tr>
+                        <td></td>
+                        <td>LOCATION CODE</td>
+                        <td>QUANTITY IN HAND</td>
+                        <td>RETURN QUANTITY</td>
+                        <td>EXPIRY DATE</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (DataRow row_nested in Return_To_VendorModel.dt_locations.Rows)
+                    {
+                        <tr>
+                            <td>
+                                <input name="AreChecked" type="checkbox" value="@row_nested["Inv_ID"]" />
+                                <input asp-for="@Model.Inv_Id" value="@row_nested["Inv_ID"]" type="hidden" />
+                                <input asp-for="@Model.Details_Id" value="@row_nested["ID"]" type="hidden" />
+                                <input asp-for="@Model.Item_ID_1" value="@row_nested["Item_ID"]" type="hidden" />
+                                <input asp-for="@Model.Location_Id" value="@row_nested["Location_ID"]" type="hidden" />
+                                <input asp-for="@Model.Qty_In_Hand" value="@row_nested["QTY_In_Hand"]" type="hidden" />
+                            </td>
+                            <td>@row_nested["Location_Code"]</td>
+                            <td>@row_nested["QTY_In_Hand"]</td>
+                            <td><input type="number" asp-for="@Model.Return_Quantity" onkeypress="return event.keyCode != 13;" /></td>
+                            <td>
+                                @if (@row_nested["EXPIRY_DATE"] != DBNull.Value)
+                                {
+                                    @Convert.ToDateTime(row_nested["EXPIRY_DATE"]).ToString("M/d/yyyy")
+                                    <input asp-for="@Model.Expiry_Date" value="@Convert.ToDateTime(row_nested["EXPIRY_DATE"]).ToString("M/d/yyyy")" type="hidden" />
+                                }
+                                else
+                                {
+                                    <input asp-for="@Model.Expiry_Date" value=null type="hidden" />
+                                    @row_nested["EXPIRY_DATE"]
+                                }
+                            </td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>
+                            <button asp-page-handler="ReturnItems" onclick="spinner();">
+                                    <i class="fa fa-undo" style="color:blue;" title="RETURN ITEMS"></i>
+                            </button>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <br />
+        <span style="color:red;">NO RECORDS ARE FOUND</span>
+    }
+}
+
+</form>
+</body>
+</html>
+
+
+
+
+
+
+    

@@ -1,0 +1,525 @@
+﻿@page
+@model RM_Warehouse.Pages.Item_MasterModel
+@{
+    ViewData["Title"] = "Item Master";
+    List<Item_Codes_Description> item_Codes = new List<Item_Codes_Description>();
+  
+}
+@using System.Data;
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    
+    @*THIS JQUERY CODE CREATES SEARCHABLE DROPDOWN FOR ITEM CODES*@
+    
+    <script>
+        $(document).ready(function () {
+            $('.Ddl_Items').select2();
+            var totalCount = @Item_MasterModel.cnt;
+            $.fn.dataTable.models.oSettings.fnRecordsTotal = function () { return totalCount; };
+            var table = $('#tblItemMaster').DataTable({
+                deferRender: true,
+                columnDefs: [
+                    {
+                        searchable: false,
+                        orderable: false,
+                        targets: 0,
+
+                    },
+                ],
+                order: [[1, 'asc']],
+            });
+            JsonDDLData('item_id_search', '/Item_Master?handler=ItemList', true);
+        });
+        function JsonDDLData(DDLName, strUrl) {
+
+
+            $("#" + DDLName).select2({
+                placeholder: "Search Here",
+                minimumInputLength: 3,
+                allowClear: true,
+                ajax: {
+                    url: strUrl,
+                    type: "Get",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        console.log(params )
+                        return {
+                            searchTerm: params.term // search term
+                        };
+                    },
+                    processResults: function (response) {
+                        return {
+                            results: response
+                        };
+                    },
+                    initSelection: function (item, callback) {
+                        var id = item.val();
+                        var text = item.data('option');
+                        var data = {
+                            id: id,
+                            text: text
+                        };
+                        callback(data);
+                    },
+                    formatResult: function (item) {
+                        return ('<div><b>' + item.id + ' </b>- ' + item.text + '</div>');
+                    },
+                    formatSelection: function (item) {
+                        return (item.id + " - " + item.text);
+                    },
+                    escapeMarkup: function (m) {
+                        return m;
+                    },
+                },
+            });
+        }
+    </script>
+    @*BELOW CODE SHOWS ALERT MESSAGE FROM CODE BEHIND*@
+
+    @if (TempData["ConfirmationMessage"] != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                alert("@TempData["ConfirmationMessage"]");
+            };            
+          
+        </script>
+    }
+
+</head>
+<body>
+  
+    @*THIS FORM ACCEPTS USER INPUTS FROM ITEM CODES DROPDOWN AND THEN SHOWS DATATABLE dt_items_all WITH 
+
+    SEARCHED RECORD.*@ 
+
+    <form method="post">
+    <div class="row">
+            <div class="col-4 col-md-2"><label for="item_id_search">Item Codes:</label></div>
+        <div class="col-md-6">
+                <select class="Ddl_Items form-control" asp-for="@Model.item_id_search" asp-items="@(new SelectList(item_Codes, "Item_ID", "Item_Code_Description"))" placeholder="Select Item">
+                    <option value=0>Select Item Master</option>
+            </select><br />
+            <span asp-validation-for="item_id_search" class="text-danger"></span>
+        </div>
+        <div class="col-2 col-md-1">
+            <button asp-page-handler="Search_Locations">
+                <i class="fa fa-search" style="color:blue;" title="SEARCH LOCATIONS"></i>
+            </button>
+        </div>
+            <div class="col-2 col-md-1">
+                
+                <a href="Item_Master" class="btn btn-success" onclick="spinner();">Show All</a>
+            </div>
+    </div>
+    </form>
+
+    @*THIS GRID SHOWS ITEMS RECORDS FOR ALL OR SEARCHED INPUTS.
+    THIS HAS 4 BUTTONS FOR EACH ROW IN ITEMS GRID.
+    1.EDIT ITEM.WHICH OPENS ITEM FORM WITH FILLED VALUES.
+    2.SHOW LOCATIONS.WHICH SHOWS DATATABLE dt_locations FOR THIS ITEM.
+    3.UPDATE ITEM PRICE.WHICH OPENS UPDATE ITEM PRICE FORM FOR USER INPUTS.
+    4.SHOW PRICE HISTORY.WHICH SHOWS DATATABLE dt_price_history FOR THIS ITEM.
+*@
+
+    @if (Item_MasterModel.dt_items_all != null)
+    {
+        <h4>ITEM MASTER</h4>
+        <div class="table-responsive" style="max-height:800px;" >
+            @*<div style="overflow-x:auto;height:50vh;overflow-y:auto;width:1125px;" class="table-responsive">*@
+            <table class="table table-bordered table-striped display" style="width:100%" height="30%" id="tblItemMaster">
+                <thead >
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>Item_Code</td>
+                        <td>Item_Desc</td>
+                        <td>Price</td>
+                        <td>Currency</td>
+                        <td>Image Filename</td>
+                        <td>Created_By</td>
+                        <td>Created_Date</td>
+                        <td>Updated By</td>
+                        <td>Updated_Date</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @try
+                    {
+                        @foreach (DataRow row in Item_MasterModel.dt_items_all.Rows)
+                        {
+                            <tr>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Edit" asp-route-item_id_1="@row["Item_ID"]">
+                                            <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT ITEM"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Show_Locations" asp-route-item_id_1="@row["Item_ID"]" asp-route-item_code_1="@row["Item_Code"]" asp-route-item_desc_1="@row["Item_Desc"]">
+                                            <i class="fa-solid fa-store" style="color:green;" title="SHOW LOCATIONS"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Update_Price" asp-route-item_id_1="@row["Item_ID"]" asp-route-item_code_1="@row["Item_Code"]" asp-route-item_desc_1="@row["Item_Desc"]" asp-route-old_price_1="@row["Price"]" asp-route-old_currency_1="@row["Currency"]">
+                                            <i class="fa fa-money" style="color:green;" title="UPDATE PRICE"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Price_History" asp-route-item_id_1="@row["Item_ID"]" asp-route-item_code_1="@row["Item_Code"]" asp-route-item_desc_1="@row["Item_Desc"]">
+                                            <i class="fa fa-history" style="color:green;" title="PRICE HISTORY"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Upload_Image" asp-route-item_id_1="@row["Item_ID"]" asp-route-item_code_1="@row["Item_Code"]" asp-route-item_desc_1="@row["Item_Desc"]">
+                                            <i class="fa fa-upload" style="color:green;" title="UPLOAD IMAGE"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>
+                                    @if (row["Image_Filename"] != DBNull.Value)
+                                    {
+                                        <a asp-route-filename="@row["Image_Filename"]" asp-page="\View_Image_Item" target="_blank">View Image</a>
+                                    }
+
+                                </td>
+                                <td>@row["Item_Code"]</td>
+                                <td>@row["Item_Desc"]</td>
+                                <td>@row["Price"]</td>
+                                <td>@row["Currency"]</td>
+                                <td>@row["Image_Filename"]</td>
+                                <td>@row["Created_By"]</td>
+                                <td>@row["Created_Date"]</td>
+                                <td>@row["Updated_By"]</td>
+                                <td>@row["Updated_Date"]</td>
+                            </tr>
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+
+
+                </tbody>
+            </table>
+        </div>
+    }
+    <hr />
+
+    @*BELOW Add_Item BUTTON OPENS ITEM ENTRY FORM FOR ADDING NEW ITEM*@
+
+
+<div style="float:left;background-color:lightblue;">
+    <form method="post">
+        <button asp-page-handler="Add_Item">
+            <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW ITEM"></i>
+        </button>
+    </form>
+</div>
+<br />
+<br />
+
+@*BELOW FORM ACCEPTS ITEM_CODE AND ITEM_DESC FROM USER FOR BOTH INSERT OR UPDATE ITEM*@ 
+
+@if (Model.flag_entry_form)
+{
+    <h4>Item Entry Form</h4>
+
+    <span style="color:red;" class="fs-4">@Model.Msg</span>
+    <br />
+    <form method="post">
+        <div class="row">
+            <div class="col-4 col-md-2">
+                @if (Model.item_id != 0)
+                {
+                    @Model.item_id
+                }
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4 col-md-2">
+                <input type="hidden" asp-for="@Model.item_id" />
+               
+            </div>
+            </div>
+                <div class="row">
+                <div class="col-6 col-md-3">
+                    <label for="item_code">Item Code</label>
+                    <input type="text" asp-for="@Model.item_code" onkeypress="return event.keyCode != 13;" />
+                </div>
+                <div class="col-6 col-md-3">
+                  <label for="item_desc">Item Description</label>
+                   <input type="text" asp-for="@Model.item_desc" onkeypress="return event.keyCode != 13;" />
+                </div>
+                </div>
+                <div class="row">
+                @if (Model.item_id == 0)
+                {
+                <div class="col-4 col-md-3">
+                    <label for="item_desc">Item Price</label>
+                <input type="text" asp-for="@Model.price" onkeypress="return event.keyCode != 13;" />
+                </div>
+                    <div class="col-4 col-md-3">
+                        <label for="Currency">Currency</label>
+                        <select asp-for="@Model.Currency">
+                            <option value="0">PICK ONE</option>
+                            <option value="CAD">CAD</option>
+                            <option value="USD">USD</option>
+                        </select><br />
+                    </div>
+                }
+        </div>
+       
+        
+        <div class="row">
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Submit">
+                    @if (Model.Label.ToUpper() == "CREATE NEW ITEM")
+                    {
+                        <i class="fas fa-save" style="color:green;" title="SAVE NEW ITEM"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-save" style="color:green;" title="UPDATE ITEM"></i>
+                    }
+                </button>
+                
+
+                <input type="hidden" asp-for="@Model.Label" />
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Cancel">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                </button>
+            </div>
+        </div>
+    </form>
+
+}
+
+@*BELOW DATATABLE dt_locations SHOWS LOCATION_CODE,QTY_IN_HAND,EXPIRY_DATE,COST AND CURRENCY FOR PARTICULAR ITEM.*@
+
+
+@if (Model.flag_locations)
+    {
+        <hr />
+        <h4>Locations</h4>
+        @if (Item_MasterModel.dt_locations != null)
+        {
+            @if (!Model.flag_search)
+            {
+                <label>Item Code:</label>
+                <b>@Model.item_code_locations</b>
+                <label>Item Description:</label>
+                <b>@Model.item_desc_locations</b>
+            }
+            <div class="table-responsive" style="max-height:450px;font-size:small;">
+                <table class="table table-bordered table-striped toptable" height="30%">
+                    <thead class="FixedHeader">
+                        <tr>
+                            <td>LOCATION CODE</td>
+                            <td>QUANTITY IN HAND</td>
+                            <td>EXPIRY DATE</td>
+                            <td>COST</td>
+                            <td>CURRENCY</td>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (DataRow row_nested in Item_MasterModel.dt_locations.Rows)
+                        {
+                            <tr>
+                                <td>@row_nested["Location_Code"]</td>
+                                <td>@row_nested["QTY_In_Hand"]</td>
+                                <td>
+                                    @if (@row_nested["EXPIRY_DATE"] != DBNull.Value)
+                                    {
+                                        @Convert.ToDateTime(row_nested["EXPIRY_DATE"]).ToString("M/d/yyyy")
+
+                                    }
+                                    else
+                                    {
+                                        @row_nested["EXPIRY_DATE"]
+                                    }
+                                </td>
+                                <td>@row_nested["COST"]</td>
+                                <td>@row_nested["CURRENCY"]</td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <br />
+            <span style="color:red;">NO RECORDS ARE FOUND</span>
+        }
+
+    }
+
+    @*BELOW FORM ACCEPTS NEW UNIT PRICE AND CURRENCY FROM USER*@
+
+
+@if (Model.flag_update_price_form)
+{
+    <h4>Update Item Price Form</h4>
+
+    <span style="color:red;" class="fs-4">@Model.Msg_Update_Price</span>
+    <form method="post">
+        <div class="row">
+            <div class="col-4 col-md-2">
+                @if (Model.item_id_price != 0)
+                {
+                    @Model.item_id_price
+                }
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4 col-md-2">
+                <input type="hidden" asp-for="@Model.item_id_price" />
+                <label for="item_code_price">Item Code</label>
+            </div>
+            <div class="col-8 col-md-3">@Model.item_code_price</div>
+            <div class="col-4 col-md-2"><label for="item_desc_price">Item Description</label></div>
+            <div class="col-8 col-md-3">@Model.item_desc_price</div>
+
+        </div>
+            <div class="row">
+                <div class="col-4 col-md-2">
+                    <input type="hidden" asp-for="@Model.item_price_old" />
+                    <label for="item_price_old">Old Item Price:</label>
+                </div>
+                <div class="col-8 col-md-3">@Model.item_price_old</div>
+                <div class="col-4 col-md-2">
+                    <input type="hidden" asp-for="@Model.item_currency_old" />
+                    <label for="item_currency_old">Old Item Currency:</label>
+                </div>
+                <div class="col-8 col-md-3">@Model.item_currency_old</div>
+            </div>
+            <div class="row">
+                <div class="col-4 col-md-2">
+                    <label for="item_price_new">New Item Price:</label>
+                </div>
+                <div class="col-8 col-md-3"><input type="number" step=".01" asp-for="@Model.item_price_new" onkeypress="return event.keyCode != 13;" /></div>
+                <div class="col-4 col-md-2"><label for="item_currency_new">New Item Currency</label></div>
+                <div class="col-8 col-md-4">
+                    <select asp-for="@Model.item_currency_new">
+                        <option value="0">PICK ONE</option>
+                        <option value="CAD">CAD</option>
+                        <option value="USD">USD</option>
+                    </select><br />
+                </div>
+                
+            </div>
+       
+        
+        <div class="row">
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Submit_New_Price">
+                    <i class="fas fa-save" style="color:green;" title="SAVE NEW PRICE"></i>
+                </button>     
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Cancel_New_Price">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+
+}
+
+@*BELOW DATATABLE dt_price_history SHOWS HISTORY OF OLD AND CURRENT PRICE DETAILS FOR THIS ITEM.*@
+
+@if(Model.flag_price_history)
+{
+@if (Item_MasterModel.dt_price_history != null)
+{
+    <h4>ITEM PRICE HISTORY</h4>
+    <div class="table-responsive" style="max-height:300px;">
+            <label>Item Code:</label>
+            <b>@Model.item_code_history</b>
+            <label>Item Description:</label>
+            <b>@Model.item_desc_history</b>
+        @*<div style="overflow-x:auto;height:50vh;overflow-y:auto;width:1125px;" class="table-responsive">*@
+        <table class="table table-bordered table-striped" height="30%">
+            <thead class="FixedHeader">
+                <tr>
+                    <td>Old Price</td>
+                    <td>Old Currency</td>
+                    <td>Updated By</td>
+                    <td>Updated_Date</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                @try
+                {
+                        @foreach (DataRow row in Item_MasterModel.dt_price_history.Rows)
+                    {
+                        <tr>
+                            <td>@row["Price"]</td>
+                            <td>@row["Currency"]</td>
+                            <td>@row["Updated_By"]</td>
+                            <td>@row["Date_Updated"]</td>
+                        </tr>
+                    }
+                }
+                catch (NullReferenceException ex)
+                {
+                    return;
+                }
+
+
+            </tbody>
+        </table>
+    </div>
+}
+    else
+    {
+        <br />
+        <span style="color:red;">NO PRICE HISTORY RECORDS ARE FOUND</span>
+    }
+}
+
+@if(Model.flag_upload)
+    {
+        <form method="post" enctype="multipart/form-data">
+        <h4 style="color:red;">Please Upload File...</h4>
+        <h4 style="color:red;">@Model.File_Empty_Msg</h4>
+        <tr class="d-flex">
+            <td class="col-auto">
+                <input type="file" asp-for="@Model.UploadFiles" accept="image/*,.pdf" />
+            </td>
+            <td class="col-auto">
+                <input type="submit" value="Upload File" asp-page-handler="Upload" />
+
+            </td>
+        </tr>
+        </form>
+    }
+
+</body>
+</html>

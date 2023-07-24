@@ -1,0 +1,118 @@
+﻿@page
+@model RM_Warehouse.Pages.Admin_PagesModel
+@{
+    ViewData["Title"] = "Admin - Pages";
+}
+@using System.Data;
+<h4>ADMIN - PAGES</h4>
+
+@*BELOW FORM ASKS FOR UserName INPUT AND CALLS FindMyPages FUNCTION TO FILL DATATABLE dt_my_pages
+WITH USER'S ASSIGNED PAGES FROM DATABASE TABLE*@
+
+<form method="post">
+    <span style="color:red;" class="fs-4">@Model.Msg</span>
+    <div class="row">
+        <div class="col-4 col-md-2">
+            <label asp-for="UserName">Give UserName:</label>
+        </div>
+        <div class="col-4 col-md-2">
+            <input type="text" asp-for="@Model.UserName" onkeypress="return event.keyCode != 13;" />
+        </div>
+        <div class="col-4 col-md-1">
+            <button asp-page-handler="FindMyPages">
+                <i class="fas fa-search" style="color:blue;" title="FIND MY PAGES"></i>
+            </button>
+        </div>
+    </div>
+
+    @*BELOW CODE SHOWS USER'S ASSIGNED PAGES FROM DATABASE IN DATATABLE dt_my_pages
+    ALSO, IT HAS DELETE ACCESS BUTTON*@
+    
+    @if (Admin_PagesModel.dt_my_pages != null)
+    {
+        <hr/>
+        <div class="table-responsive" style="max-height:400px;">
+            <table class="table table-bordered table-striped" height="30%">
+                <thead class="FixedHeader">
+                    <tr>
+                        <td></td>
+                        <td>Page</td>
+                        <td>AD UserName</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @try
+                    {
+                        @foreach (DataRow row in Admin_PagesModel.dt_my_pages.Rows)
+                        {
+                            <tr>
+                                <td>
+                                    <button asp-page-handler="Delete" onclick="spinner();" asp-route-id_1="@row["ID"]">
+                                        <i class="fa fa-trash" style="color:black;" title="DELETE RECORD"></i>
+                                    </button>
+                                </td>
+                                <td>@row["Page1"]</td>
+                                <td>@row["User1"]</td>
+                            </tr>
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+
+
+                </tbody>
+            </table>
+        </div>
+    }
+    <hr/>
+
+    @*BELOW IS Add_New_Record FORM TO ASSIGN NEW PAGES TO USER
+    ALSO,THIS FORM GETS OR SETS "Chk_Submit_to_Accounts_Dept" CHECKBOX VALUES FOR GIVE/REMOVE ACCESS FOR 
+    PO INVOICE PROCESS TAB NAMED "SUBMIT TO ACCOUNT DEPT"
+    THIS HAS pageList DROPDOWN WITH UNASSIGNED PAGES FOR THE USER *@
+
+
+    <button asp-page-handler="Add_New_Record">
+        <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW RECORD"></i>
+    </button>
+    @if (Model.flag_new_page)
+    {
+        <div class="row">
+            <div class="col-6 col-md-3">
+                <label asp-for="UserName">SUBMIT TO ACCOUNT DEPT.</label>
+            </div>
+            <div class="col-4 col-md-2">
+                <input type="checkbox" asp-for="@Model.Chk_Submit_to_Accounts_Dept"/>
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="GiveAccountsAccess">
+                    <i class="fas fa-save" style="color:green;" title="GIVE/REMOVE ACCESS"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-3 col-md-2">
+                <label for="warehouse_name">New Page:</label>
+            </div>
+            <div class="col-5 col-md-3">
+                <select class="box_size" asp-for="@Model.page_name" asp-items="@(new SelectList(Admin_PagesModel.pageList, "Page_Name", "Page_Name"))">
+                    <option value="">PICK ONE</option>
+                </select>
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitNewPage">
+                    <i class="fas fa-save" style="color:green;" title="SAVE NEW RECORD"></i>
+                </button>
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Cancel">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                </button>
+            </div>
+        </div>
+    }
+</form>

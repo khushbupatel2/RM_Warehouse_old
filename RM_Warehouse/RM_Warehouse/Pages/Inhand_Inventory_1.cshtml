@@ -1,0 +1,291 @@
+﻿@page
+@model RM_Warehouse.Pages.Inhand_Inventory_1Model
+@{
+    ViewData["Title"] = "Inhand Inventory";
+}
+<style>
+    .clicked {
+        background-color:lightgreen!important;
+    }
+</style>
+@*<script>
+ 
+    $(document).ready(function () {
+        $('#warehouse_DIV > li > a').click(function () {
+            sessionStorage.setItem('thisLink', $(this).text());
+    //        alert('in click '+$(this).text());
+        });
+    });
+
+    
+    $(window).on('load', function () {
+        var thisLink = sessionStorage.getItem('thisLink');
+      //  alert('load '+thisLink);
+        if (typeof thisLink != 'undefined') {
+            $('#warehouse_DIV > li >a').each(function () {
+        //        alert('in each ' + $(this).text());
+                if (thisLink === $(this).text()) {
+                    $(this).parents('li').addClass('clicked');
+                    return false;
+                } // "this" is the current element in the loop
+                return true;
+            });
+        }
+    });
+
+</script>*@
+
+@using System.Data;
+@*<div style="position:relative;height:78vh;">*@
+
+@*<div class="d-flex align-items-stretch flex-column" id="warehouse_DIV" style="position:absolute;width:200px;overflow-y:hidden;min-height:89vh;background-color:burlywood;">
+    @foreach (DataRow row in Inhand_Inventory_1Model.dt_wh_all.Rows)
+    {
+            <li style="border:1px solid grey;background-color:khaki;list-style-type: none;"><a style="text-decoration: none;" asp-page-handler="Show_Locations" asp-route-warehouse_id_1="@row["Warehouse_ID"]" asp-route-warehouse_name_1="@row["Name"]">@row["Name"]</a></li>
+    }
+</div>*@
+    @if (Model.flag_locations)
+    {
+        <span style="float:left;">
+        <form method="post">
+            <button asp-page-handler="Add_Location">
+                <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW LOCATION"></i>
+            </button>
+        </form>
+        </span>
+
+        <br />
+        @if (Inhand_Inventory_1Model.dt_loc_all_for_wh != null)
+        {
+            @*<div style="position:absolute;left:210px;width:900px;overflow-y:auto;height:40vh;padding-top:3px;">*@
+            <div class="table-responsive" style="max-height:200px;position:relative;">
+                @Inhand_Inventory_1Model.warehouse_name
+                <table class="table table-bordered table-striped" style="width:1000px;">
+                    <thead class="FixedHeader">
+                        <tr>
+                            <td>Location_Code</td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (DataRow row in Inhand_Inventory_1Model.dt_loc_all_for_wh.Rows)
+                        {
+                            <tr>
+                                <td><a asp-page-handler="Show_Items" asp-route-location_id="@row["Location_ID"]" asp-route-location_code="@row["Location_Code"]">@row["Location_Code"]</a></td>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Edit_Location" asp-route-location_id_1="@row["Location_ID"]" asp-route-location_code_1="@row["Location_Code"]">
+                                            <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT LOCATION"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    }
+    
+@*</div>*@
+<br/>
+@if(Model.flag_items)
+    {
+    @*<span style="float:left;padding-left:210px;position:relative;top:-275px;">
+        @*<form method="post">
+            <button asp-page-handler="Add_Inventory" asp-route-location_id_1="@Inhand_Inventory_1Model.location_id_inventory" asp-route-location_code_2="@Inhand_Inventory_1Model.location_code_1">
+                <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW INVENTORY"></i>
+            </button>
+        </form>
+        
+        @Inhand_Inventory_1Model.location_code_1
+    </span>*@
+
+       
+    @*@Inhand_Inventory_1Model.location_id_inventory*@
+    <br/>
+        @if (Inhand_Inventory_1Model.dt_items_all_for_location != null)
+        {
+        <div class="table-responsive" style="max-height:250px;position:relative;">
+            @Inhand_Inventory_1Model.location_code_1
+            <table class="table table-bordered table-striped" style="width:1000px;">
+                    <thead class="FixedHeader">
+                        <tr>
+                            <td>Item_Code</td>
+                            <td>Item_Desc</td>
+                            <td>QTY_In_Hand</td>
+                            <td>Expiry_Date</td>
+                            @*<td>Location Code</td>
+                            <td>warehouse Name</td>*@
+                            
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @try
+                        {
+                            @foreach (DataRow row in Inhand_Inventory_1Model.dt_items_all_for_location.Rows)
+                            {
+                                <tr>
+                            @*        <td>
+                                        <form method="post">
+                                        <button asp-page-handler="Edit_Inventory" asp-route-item_id="@row["Item_ID"]" asp-route-location_id="@row["Location_ID"]" asp-route-qty_in_hand_1="@row["QTY_In_Hand"]">
+                                                <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT ITEM"></i>
+                                            </button>
+                                        </form>
+                                    </td>*@
+                                    @*<td>@row["Item_ID"]</td>*@
+                                    <td>@row["Item_Code"]</td>
+                                    <td>@row["Item_Desc"]</td>
+                                    <td>@row["QTY_In_Hand"]</td>
+                                    <td>
+                                    @if (@row["Expiry_Date"] != DBNull.Value)
+                                    {
+                                        @Convert.ToDateTime(row["Expiry_Date"]).ToString("M/d/yyyy")
+                                    }
+                                    else
+                                    {
+                                        @row["Expiry_Date"]
+                                    }
+                                    </td>
+                                    @*<td>@row["Location_Code"]</td>
+                                    <td>@row["Name"]</td>*@
+                                
+                                </tr>
+                            }
+                        }
+                        catch (NullReferenceException ex)
+                        {
+                            return;
+                        }
+
+
+                    </tbody>
+                </table>
+            </div>
+        }
+        @*</div>*@
+    }
+
+@if (Model.flag_location_form)
+{
+    <div style="position:relative;">
+       <br/>
+            <h4>Location Entry Form</h4>
+
+            <span style="color:red;" class="fs-4">@Model.Msg</span>
+            <br />
+            <form method="post">
+                <div class="row">
+                    <div class="col-4 col-md-2">
+                @if (Inhand_Inventory_1Model.location_id_edit != 0)
+                {
+                    @Inhand_Inventory_1Model.location_id_edit
+                }
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-4 col-md-2">
+                        <label for="name">Location Code:</label>
+                    </div>
+                    <div class="col-8 col-md-3"><input type="text" asp-for="@Model.location_code" /></div>
+                </div>
+
+            <div class="row">
+                <div class="col-5 col-md-3">
+                    <label for="name">Set As Default Location:</label>
+                </div>
+                <div class="col-4 col-md-1"><input type="checkbox" asp-for="@Model.Is_Default_Location" /></div>
+            </div>
+
+
+                @*<div class="row">
+                <div class="col-4 col-md-2"><label for="warehouse_id_form">Warehouse Name:</label></div>
+                    <div class="col-8 col-md-2">
+                <select asp-for="@Model.warehouse_id_form" asp-items="@(new SelectList(Inhand_Inventory_1Model.warehouseList, "Warehouse_ID", "Name"))">
+                    <option value=0>PICK ONE</option>
+                </select>
+            </div>
+                </div>*@
+                <div class="row">
+                    <div class="col-2 col-md-1">
+                        <button asp-page-handler="Submit">
+                            <i class="fas fa-save" style="color:green;" title="SAVE LOCATION"></i>
+                        </button>
+
+                    </div>
+                    <div class="col-2 col-md-1">
+                        <button asp-page-handler="Cancel">
+                            <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    
+}
+@*@if (Model.flag_inventory_form)
+{
+    <div style="position:relative;left:210px;top:-35vh;">
+        <br />
+        <h4>Inventory Entry Form</h4>
+
+        <span style="color:red;" class="fs-4">@Model.Msg_Inventory</span>
+        <br />
+        <form method="post">
+            <div class="row">
+                <div class="col-4 col-md-2">
+                    @if (!string.IsNullOrEmpty(Inhand_Inventory_1Model.location_code_1))
+                    {
+                        @Inhand_Inventory_1Model.location_code_1
+                        @Inhand_Inventory_1Model.location_id_inventory
+                        
+                    }
+                </div>
+            </div>
+
+            @*<div class="row">
+                <div class="col-4 col-md-2">
+                    <label for="name">Location Code:</label>
+                </div>
+                <div class="col-8 col-md-3">@Model.location_code</div>
+            </div>
+          
+               <div class="row">
+                    <div class="col-4 col-md-2"><label for="item_id_form">Item Code:</label></div>
+                    <div class="col-8 col-md-2">
+                    <select name="value_item_id_inventory" asp-for="@Inhand_Inventory_1Model.item_id_form" asp-items="@(new SelectList(Inhand_Inventory_1Model.itemsList, "Item_ID", "Item_Code"))" disabled="@Inhand_Inventory_1Model.flag_edit_inventory">
+                            <option value=0>PICK ONE</option>
+                        </select>
+                    </div>
+                </div>
+            
+            <div class="row">
+                <div class="col-4 col-md-2">
+                    <label for="name">Quantity In Hand:</label>
+                </div>
+                <div class="col-8 col-md-3"><input type="number" asp-for="@Model.qty_in_hand" /></div>
+            </div>
+            <div class="row">
+                <div class="col-2 col-md-1">
+                    <button asp-page-handler="SubmitInventory">
+                        <i class="fas fa-save" style="color:green;" title="SAVE INVENTORY"></i>
+                    </button>
+
+                </div>
+                <div class="col-2 col-md-1">
+                    <button asp-page-handler="CancelInventory">
+                        <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+}*@

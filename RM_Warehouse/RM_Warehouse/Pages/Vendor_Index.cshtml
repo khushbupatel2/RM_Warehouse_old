@@ -1,0 +1,215 @@
+﻿@page
+@model RM_Warehouse.Pages.Vendor_IndexModel
+@{
+    ViewData["Title"] = "Vendor Information";
+}
+@using System.Data;
+@if (Model.flag_vendor_form)
+{
+
+    @*BELOW FORM IS VENDOR ENTRY FORM.IT ACCEPTS USER INPUTS.IT HAS "SAVE VENDOR" BUTTON FOR SUBMIT FORM.
+    IT ALSO HAS CANCEL BUTTON.
+    *@ 
+
+    <h4>Vendor Entry Form</h4>
+    <span style="color:red;">@Model.Msg</span><br />
+    <form method="post">
+        <div class="row">
+            <div class="col-4 col-md-2">
+                <input type="hidden" asp-for="@Model.Vendor_ID" />
+                <label for="Vendor_Name">Vendor Name</label>
+            </div>
+            <div class="col-8 col-md-4"><input type="text" asp-for="@Model.Vendor_Name" onkeypress="return event.keyCode != 13;" /></div>
+            <div class="col-4 col-md-2"><label for="Street_Address">Street Address</label></div>
+            <div class="col-8 col-md-4"><input type="text" asp-for="@Model.Street_Address" onkeypress="return event.keyCode != 13;" /></div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="City">City</label></div>
+            <div class="col-8 col-md-4"><input type="text" asp-for="@Model.City" onkeypress="return event.keyCode != 13;" /></div>
+            <div class="col-4 col-md-2"><label for="Prov_State">Province State</label></div>
+            <div class="col-8 col-md-4"><input type="text" asp-for="@Model.Prov_State" onkeypress="return event.keyCode != 13;" /></div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Postal_Code">Postal Code</label></div>
+            <div class="col-8 col-md-4"><input type="text" asp-for="@Model.Postal_Code" onkeypress="return event.keyCode != 13;" /></div>
+            <div class="col-4 col-md-2"><label for="Phone">Phone</label></div>
+            <div class="col-8 col-md-4"><input type="tel" asp-for="@Model.Phone" onkeypress="return event.keyCode != 13;" /></div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Fax">Fax</label></div>
+            <div class="col-8 col-md-4"><input type="tel" asp-for="@Model.Fax" onkeypress="return event.keyCode != 13;" /></div>
+            <div class="col-4 col-md-2"><label for="Email">Email</label></div>
+            <div class="col-8 col-md-4"><input type="email" asp-for="@Model.Email" onkeypress="return event.keyCode != 13;" /></div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Is_Active">Is Active</label></div>
+            <div class="col-8 col-md-4">
+                <select asp-for="@Model.Is_Active">
+                    <option value=false>False</option>
+                    <option value=true>True</option>
+                </select>
+            </div>
+            <div class="col-4 col-md-2"><label for="Contact_Person">Contact Person</label></div>
+            <div class="col-8 col-md-4"><input type="text" asp-for="@Model.Contact_Person" onkeypress="return event.keyCode != 13;" /></div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Contact_Phone">Contact Phone</label></div>
+            <div class="col-8 col-md-4"><input type="tel" asp-for="@Model.Contact_Phone" onkeypress="return event.keyCode != 13;" /></div>
+            <div class="col-4 col-md-2"><label for="Mode_Of_Payment">Mode of Payment</label></div>
+            <div class="col-8 col-md-4">
+                <select asp-for="@Model.Mode_Of_Payment">
+                    <option value="">PICK ONE</option>
+                    <option value="ON ACCOUNT">ON ACCOUNT</option>
+                    <option value="T CHEQUE">T CHEQUE</option>
+                    <option value="CREDIT CARD">CREDIT CARD</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Notes">Notes:</label></div>
+            <div class="col-8 col-md-4"><textarea asp-for="@Model.Notes" rows="3" cols="50"></textarea></div>
+        </div>
+        <div class="row">
+            <div class="col-2 col-md-1">
+                <input type="hidden" asp-for="@Model.Label" />
+                <button asp-page-handler="Submit">
+                    <i class="fas fa-save" style="color:green;" title="SAVE VENDOR"></i>
+                </button>
+
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Cancel">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                </button>
+            </div>
+        </div>
+    </form>
+}
+@**************************** search form ************************************************@
+
+@*BELOW FORM IS FOR SEARCHING VENDORS RECORDS WITH SEARCHED INPUTS LIKE Search_Criteria RADIO BUTTONS,Search_Value 
+TEXTBOX.IT HAS Search BUTTON FOR FORM SUBMIT.*@
+
+@if(Model.flag_search_form)
+{
+    <form method="post">
+            <span style="color:red;">@Model.Msg_Search</span><br />
+            <div class="row">
+
+                <div class="col-12 col-md-8">
+                    <label>Search Criteria:</label>
+                    <input type="radio" value="Vendor Name" name="Search_Criteria" asp-for="@Model.Search_Criteria">
+                    <label>Vendor Name</label>
+                    <input type="radio" value="City" name="Search_Criteria" asp-for="@Model.Search_Criteria">
+                    <label>City</label>
+                    <input type="radio" value="Province" name="Search_Criteria" asp-for="@Model.Search_Criteria">
+                    <label>Province</label>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-9 col-md-4">
+                    Search Value:
+                <input type="text" asp-for="@Model.Search_Value" onkeypress="return event.keyCode != 13;" />
+                </div>
+                <div class="col-3 col-md-1">
+                <button asp-page-handler="Search">
+                    <i class="fas fa-search" style="color:blue;" title="SEARCH VENDORS"></i>
+                </button>
+                </div>
+            </div>
+
+
+
+    </form>
+}
+@*************** search form ends************@
+@if (Model.flag_vendors)
+{
+    <span style="float:left;">
+        <form method="post">
+            <button asp-page-handler="Add_Vendor">
+                <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW VENDOR"></i>
+            </button>
+        </form>
+    </span>
+
+    <br />
+    <a href="Vendor_Index">Show All Vendors.</a>
+
+    <br />
+
+    @*BELOW GRID SHOWS ALL VENDORS OR SEARCHED VENDORS RECORDS WITH Edit BUTTONS FOR EACH ROW.
+        FOR Is_Active=false,IT CHANGES BACKGROUND COLOR OF VENDOR ROW WITH YELLOW COLOR.
+    *@ 
+
+    @if (Vendor_IndexModel.DT != null)
+    {
+        <div class="table-responsive" style="max-height:375px;">
+            <h4>Vendor Master</h4>
+            <table class="table table-bordered" style="width:1100px;font-size:small;">
+            
+                <thead class="FixedHeader">
+                <tr>
+                    <td></td>
+                    <td>Vendor_ID</td>
+                    <td>Vendor Name</td>
+                    <td>Street Address</td>
+                    <td>City</td>
+                    <td>Province State</td>
+                    <td>Postal Code</td>
+                    <td>Phone</td>
+                    <td>Fax</td>
+                    <td>Email</td>
+                    <td>Is Active</td>
+                    <td>Contact Person</td>
+                    <td>Contact Phone</td>
+                    <td>Mode of Payment</td>
+                    <td>Notes</td>
+                </tr>
+            </thead>
+            <tbody class="tbody_row">
+
+                @try
+                {
+                    @foreach (DataRow row in Vendor_IndexModel.DT.Rows)
+                    {
+
+                        <tr data-status=@row["Is_Active"].ToString() class="status">
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Edit" asp-route-id="@row["Vendor_ID"]">
+                                            <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT VENDOR"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            <td>@row["Vendor_ID"]</td>
+                                <td>@row["Vendor_Name"]</td>
+                                <td>@row["Street_Address"]</td>
+                                <td>@row["City"]</td>
+                                <td>@row["Prov_State"]</td>
+                                <td>@row["Postal_Code"]</td>
+                                <td>@row["Phone"]</td>
+                                <td>@row["Fax"]</td>
+                                <td>@row["Email"]</td>
+                                <td>@row["Is_Active"]</td>
+                                <td>@row["Contact_Person"]</td>
+                                <td>@row["Contact_Phone"]</td>
+                                <td>@row["Mode_Of_Payment"]</td>
+                                <td>@row["Notes"]</td>
+                             
+                            </tr>
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+
+                </tbody>
+            </table>
+            </div>}
+ }  
+<br />
+

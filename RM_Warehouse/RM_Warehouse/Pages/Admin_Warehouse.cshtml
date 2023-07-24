@@ -1,0 +1,102 @@
+﻿@page
+@model RM_Warehouse.Pages.Admin_WarehouseModel
+@{
+    ViewData["Title"] = "Admin - Warehouse";
+}
+@using System.Data;
+<h4>ADMIN - WAREHOUSES</h4>
+
+@*BELOW FORM ASKS FOR UserName INPUT AND CALLS FindMyWarehouses FUNCTION TO FILL DATATABLE dt_my_warehouses
+WITH USER'S ASSIGNED WAREHOUSES FROM DATABASE TABLE*@
+
+<form method="post">
+    <span style="color:red;" class="fs-4">@Model.Msg</span>
+    <div class="row">
+        <div class="col-4 col-md-2">
+            <label asp-for="UserName">Give UserName:</label>
+        </div>
+        <div class="col-4 col-md-2">
+            <input type="text" asp-for="@Model.UserName" onkeypress="return event.keyCode != 13;" />
+        </div>
+        <div class="col-4 col-md-1">
+            <button asp-page-handler="FindMyWarehouses">
+                <i class="fas fa-search" style="color:blue;" title="FIND MY WAREHOUSES"></i>
+            </button>
+        </div>
+    </div>
+
+    @*BELOW CODE SHOWS USER'S ASSIGNED WAREHOUSES FROM DATABASE IN DATATABLE dt_my_warehouses
+    ALSO, IT HAS DELETE ACCESS BUTTON*@
+
+    @if (Admin_WarehouseModel.dt_my_warehouses != null)
+{   <hr />
+    <div class="table-responsive" style="max-height:400px;">
+        <table class="table table-bordered table-striped" height="30%">
+            <thead class="FixedHeader">
+                <tr>
+                    <td></td>
+                    <td>Warehouse</td>
+                    <td>AD UserName</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                @try
+                {
+                        @foreach (DataRow row in Admin_WarehouseModel.dt_my_warehouses.Rows)
+                    {
+                        <tr>
+                            <td>
+                                <button asp-page-handler="Delete" onclick="spinner();" asp-route-id_1="@row["ID"]">
+                                    <i class="fa fa-trash" style="color:black;" title="DELETE RECORD"></i>
+                                </button>
+                            </td>
+                            <td>@row["Warehouse"]</td>
+                            <td>@row["User1"]</td>
+                        </tr>
+                    }
+                }
+                catch (NullReferenceException ex)
+                {
+                    return;
+                }
+
+
+            </tbody>
+        </table>
+    </div>
+}
+<hr />
+
+    @*BELOW IS Add_New_Record FORM TO ASSIGN NEW WAREHOUSES TO USER.
+    THIS HAS DROPDOWN warehouseList FOR ALL WAREHOUSES PRESENT IN OUR DATABASE*@
+
+
+<button asp-page-handler="Add_New_Record">
+    <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW RECORD"></i>
+</button>
+@if (Model.flag_new_warehouse)
+    {
+        <div class="row">
+        <div class="col-4 col-md-2">
+        <label for="warehouse_name">New Warehouse:</label>
+        </div>
+        <div class="col-4 col-md-2">
+                <select class="box_size" asp-for="@Model.warehouse_name" asp-items="@(new SelectList(Admin_WarehouseModel.warehouseList, "Warehouse", "Warehouse"))">
+                <option value="">PICK ONE</option>
+        </select>
+        </div>
+        <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitNewWarehouse">
+                    <i class="fas fa-save" style="color:green;" title="SAVE NEW RECORD"></i>
+                </button>
+        </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Cancel">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                </button>
+            </div>
+        </div>
+    }
+</form>

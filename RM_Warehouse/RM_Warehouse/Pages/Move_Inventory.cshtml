@@ -1,0 +1,249 @@
+﻿@page
+@model RM_Warehouse.Pages.Move_InventoryModel
+@{
+    ViewData["Title"] = "Move Inventory";
+}
+
+<style>
+    .clicked {
+        background-color:skyblue!important;
+    }
+</style>
+
+@*BELOW SCRIPT CODE STORES LOCATION_CODE CLICKED INTO SESSION OBJECT 
+ALSO,IT CREATES SEARCHABLE LOCATION_CODES DROPDOWN*@
+
+<script>
+    $(document).ready(function () {
+        $('.link').on('click', function () {
+            sessionStorage.setItem('thisLink', $(this).text());
+            $(this).focus();
+            
+        });
+        $('.DDL_Locations').select2();
+    });
+
+// BELOW CODE IS CALLED ON PAGE LOAD AND GETS SESSION OBJECT FOR LOCATION_CODE CLICKED PREVIOUSLY 
+// AND CHANGES BACKGROUND OF THIS LOCATION_CODE ROW TO .clicked CLASS
+
+    $(window).on('load', function () {
+        var thisLink = sessionStorage.getItem('thisLink');
+
+        if (typeof thisLink != 'undefined') {
+            $('#locations_table>tbody>tr>td>a.link').each(function () {
+                if (thisLink === $(this).text()) {
+                    $(this).parents('tr').addClass('clicked');
+                    return false;
+                } // "this" is the current element in the loop
+                return true;
+            });
+        }
+    });
+
+</script>
+
+
+
+@using System.Data;
+
+@*BELOW FORM DOES SEARCH FUNCTIONALITY FOR DROPDOWN LOCATION_CODES AND CALLS Search_Location METHOD*@
+
+@if (Model.flag_search)
+{
+    <form method="post">
+        <a href="Move_Inventory" onclick="spinner();">Show All Locations.</a>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="location_id">Location Codes:</label></div>
+            <div class="col-4 col-md-2">
+                <select class="DDL_Locations" asp-for="@Model.location_id" asp-items="@(new SelectList(Move_InventoryModel.locationList, "Location_ID", "Location_Code"))" style="max-width:100%;">
+                    <option value=0>PICK ONE</option>
+                </select><br />
+                <span asp-validation-for="location_id" class="text-danger"></span>
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="Search_Location">
+                    <i class="fa fa-search" style="color:blue;" title="SEARCH LOCATION"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+}
+
+@*THIS GRID SHOWS ALL LOCATIONS PRESENT IN WAREHOUSE
+    THIS ALSO HAS HYPERLINKS FOR LOCATION_CODE FOR EACH ROWS,
+    WHICH CALLS Show_Items METHOD.
+*@
+
+@if (Model.flag_locations)
+    {
+        @if (Move_InventoryModel.dt_loc_all_for_wh != null)
+        {   <h4>Location Master</h4>
+            <div class="table-responsive" style="max-height:200px;position:relative;">
+                @Move_InventoryModel.warehouse_name
+                <table id="locations_table" class="table table-bordered table-striped" style="width:1000px;">
+                    <thead class="FixedHeader">
+                        <tr>
+                            <td>Location_Code</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (DataRow row in Move_InventoryModel.dt_loc_all_for_wh.Rows)
+                        {
+                            <tr>
+                            <td><a class="link" onclick="spinner();" asp-page-handler="Show_Items" asp-route-location_id="@row["Location_ID"]" asp-route-location_code="@row["Location_Code"]">@row["Location_Code"]</a></td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    }
+    
+<br/>
+
+@*THIS GRID SHOWS ALL ITEMS PRESENT AT CURRENT LOCATION.
+IT ALSO HAS MOVE INVENTORY BUTTON FOR EACH ROWS WHICH OPENS MOVE INVENTORY FORM WITH VALUES PASSED.*@
+
+
+@if(Model.flag_items)
+{
+    <br/>
+        @if (Move_InventoryModel.dt_items_all_for_location != null)
+        {
+        <h4>Items At Location</h4>
+        <div class="table-responsive" style="max-height:250px;position:relative;">
+            @Move_InventoryModel.location_code_1
+            <table class="table table-bordered table-striped" style="width:980px;">
+                    <thead class="FixedHeader">
+                        <tr>
+                            <td></td>
+                            <td>Item_Code</td>
+                            <td>Item_Desc</td>
+                            <td>QTY_In_Hand</td>
+                            <td>Expiry_Date</td>
+                           
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @try
+                        {
+                            @foreach (DataRow row in Move_InventoryModel.dt_items_all_for_location.Rows)
+                            {
+                                <tr>
+                                <td>
+                                    <form method="post">
+                                        <button asp-page-handler="Move"  onclick="spinner();" asp-route-item_id_1="@row["Item_ID"]" asp-route-item_code_1="@row["Item_Code"]" asp-route-item_desc_1="@row["Item_Desc"]" asp-route-qty_in_hand_1="@row["QTY_In_Hand"]" asp-route-expiry_date_1="@row["Expiry_Date"]">
+                                            <i class="fa-solid fa-boxes-packing" style="color:green;" title="MOVE INVENTORY"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                    <td>@row["Item_Code"]</td>
+                                    <td>@row["Item_Desc"]</td>
+                                    <td>@row["QTY_In_Hand"]</td>
+                                    <td>
+                                    @if (@row["Expiry_Date"] != DBNull.Value)
+                                    {
+                                        @Convert.ToDateTime(row["Expiry_Date"]).ToString("M/d/yyyy")
+                                    }
+                                    else
+                                    {
+                                        @row["Expiry_Date"]
+                                    }
+                                    </td>
+                                
+                                </tr>
+                            }
+                        }
+                        catch (NullReferenceException ex)
+                        {
+                            return;
+                        }
+
+
+                    </tbody>
+                </table>
+            </div>
+        }
+    else
+    {
+        <br />
+        <span style="color:red;">NO RECORDS ARE FOUND</span>
+    }
+}
+
+@*THIS FORM ACCEPS USER INPUTS LIKE "NEW LOACTION CODE" AND "QUANTITY TO BE PLACED"
+IT ALSO HAS BUTTONS FOR SUBMIT AND CANCEL.*@
+
+@if (Model.flag_move_inventory_form)
+{
+    <h4>MOVE INVENTORY FORM </h4>
+    <form method="post">
+        <span style="color:red;" class="fs-4">@Model.Msg_Move_Inventory_Form</span>
+        <div class="row">
+            <div class="col-2 col-md-2">
+                <label for="item_code">Current Location:</label>
+            </div>
+            <div class="col-4 col-md-2">@Move_InventoryModel.location_code_1</div>
+        </div>
+        
+    <div class="row">
+        <div class="col-2 col-md-2">
+            <label for="item_code">Item Code:</label>
+        </div>
+            <div class="col-4 col-md-2"><input asp-for="@Move_InventoryModel.item_id" type="hidden" />@Move_InventoryModel.item_code</div>
+        <div class="col-2 col-md-2">
+                <label for="item_description">Item Description:</label>
+        </div>
+            <div class="col-4 col-md-2">@Move_InventoryModel.item_description</div>
+        
+    </div>
+    <div class="row">
+        <div class="col-4 col-md-2">
+                <label for="quantity_present">Quantity Present:</label>
+        </div>
+            <div class="col-2 col-md-2">@Move_InventoryModel.quantity_present</div>
+        <div class="col-2 col-md-2">
+            <label for="expiry_date">Expiry Date: (If any)</label>
+        </div>
+            <div class="col-4 col-md-2">@Move_InventoryModel.expiry_date?.ToString("MM/dd/yyyy")</div>
+    </div>
+    
+    <br />
+   
+
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="location_id_form">New Location Code:</label></div>
+            <div class="col-8 col-md-2">
+                    <select asp-for="@Model.location_id_form" asp-items="@(new SelectList(Move_InventoryModel.locationList, "Location_ID", "Location_Code"))">
+                    <option value=0>PICK ONE</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="quantity_placed">Quantity Placed:</label></div>
+            <div class="col-8 col-md-2">
+                <input asp-for="@Model.quantity_placed" type="number" onkeypress="return event.keyCode != 13;">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitMove" onclick="spinner();">
+                    <i class="fas fa-save" style="color:green;" title="MOVE INVENTORY"></i>
+                </button>
+
+            </div>
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="CancelMove">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                </button>
+            </div>
+        </div>
+
+        
+    </form>
+}

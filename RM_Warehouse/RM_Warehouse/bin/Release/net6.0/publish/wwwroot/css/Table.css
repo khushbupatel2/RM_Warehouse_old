@@ -1,0 +1,52 @@
+﻿.full_width {
+    max-width: 650px;
+    min-width: 650px;
+}
+.FixedHeader {
+    position: sticky;
+    top: 0;
+    background-color:lightsalmon;
+    color:white;
+}
+.LightGreen {
+    background-color: #90EE90;
+    color: white;
+}
+@media screen and (max-width: 455px) {
+    #openNav{
+        display:block;
+        margin-bottom:50px;
+    }
+}
+
+.start_at{
+    margin-top:45px;
+}
+
+/*.thead_row {
+    background-color: gray;
+    color: white;
+}*/
+
+.tbody_row {
+    background-color: AliceBlue;
+}
+
+.status[data-status="True"] {
+    background-color: AliceBlue;
+}
+
+.status[data-status="False"] {
+    background-color: yellow;
+}
+
+/*Colors for PO INVOICE PROCESS page*/
+
+.status_1[data-status="True"] {
+    background-color: yellow!important;
+}
+/*.status_1[data-status=\"class="status_1"\"] {
+    background-color: blue!important;
+}*/
+
+

@@ -1,0 +1,185 @@
+﻿@page
+@model RM_Warehouse.Pages.Return_From_GarageModel
+@{
+    ViewData["Title"] = "Return From Garage";
+}
+@using System.Data;
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+  
+    @*BELOW CODE CREATES 2 SEARCAHABLE DROPDOWNS FOR ITEM_CODES AND LOCATION_CODES*@
+    
+    <script>
+        $(document).ready(function () {
+            $('.Ddl_Items').select2();
+            $('.DDL_Locations').select2();
+        });
+    </script>
+
+
+</head>
+<body>
+
+    @*BELOW CODE SHOWS ALERT MESSAGE FROM CODE BEHIND*@
+
+    @if (TempData["ConfirmationMessage"] != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                alert("@TempData["ConfirmationMessage"]");
+            };
+        </script>
+    }
+
+    @*BELOW FORM IS SEARCH ITEM_CODES FORM.*@
+
+
+<form method="post">
+    <div class="row">
+        <div class="col-4 col-md-2"><label for="item_id_search">Item Codes:</label></div>
+        <div class="col-8 col-md-4">
+                <select class="Ddl_Items" asp-for="@Model.item_id_search" asp-items="@(new SelectList(Return_From_GarageModel.itemList, "Item_ID", "Item_Code_Description"))" style="max-width:100%;">
+                <option value=0>PICK ONE</option>
+            </select><br />
+            <span asp-validation-for="item_id_search" class="text-danger"></span>
+        </div>
+        <div class="col-2 col-md-1">
+            <button asp-page-handler="Search_Oubound_Order_Details">
+                <i class="fa fa-search" style="color:blue;" title="SEARCH COMPLETED ORDER DETAILS"></i>
+            </button>
+        </div>
+    </div>
+
+        @*BELOW GRID SHOWS COMPLETED OUTBOUND ORDER DETAILS FOR SEARCHED ITEM_CODE.
+            IT ALSO HAS ReturnItem BUTTON FOR EACH ROW.
+        *@
+
+@if (Model.flag_items)
+{
+    @if (Return_From_GarageModel.dt_OutBound_Details != null)
+    {
+        <h4>LIST OF COMPLETED OUTBOUND ORDER DETAILS </h4>
+        <div class="table-responsive" style="max-height:450px;font-size:small;">
+            <table class="table table-bordered table-striped" height="30%">
+                <thead class="LightGreen">
+                    <tr>
+                        <td></td>
+                        <td>ID</td>
+                        <td>ORDER_ID</td>
+                        <td>RM PONUMBER</td>
+                        <td>ITEM CODE</td>
+                        <td>ITEM_DESCRIPTION</td>
+                        <td>ORDERED QUANTITY</td>
+                        <td>PICKED QUANTITY</td>
+                        <td>UNIT PRICE</td>
+                        <td>CURRENCY</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (DataRow row in Return_From_GarageModel.dt_OutBound_Details.Rows)
+                    {
+                        <tr>
+                            <td>
+                                <button asp-page-handler="ReturnItem" onclick="spinner();" asp-route-id_1="@row["ID"]" asp-route-order_id_1="@row["ORDER_ID"]" asp-route-item_id_1="@row["Item_ID"]" asp-route-item_code_1="@row["Item_Code"]" asp-route-ordered_quantity_1="@row["ORDERED_QUANTITY"]" asp-route-picked_quantity_1="@row["PICKED_QUANTITY"]" asp-route-price_1="@row["UNIT_PRICE"]" asp-route-currency_1="@row["CURRENCY"]" asp-route-ponumber_1="@row["PONUMBER"]">
+                                    <i class="fa fa-undo" style="color:green;" title="RETURN ITEM"></i>
+                                </button>
+                            </td>
+                            <td>@row["ID"]</td>
+                            <td>@row["ORDER_ID"]</td>
+                            <td>@row["PONUMBER"]</td>
+                            <td>@row["Item_Code"]</td>
+                            <td>@row["Item_Desc"]</td>
+                            <td>@row["ORDERED_QUANTITY"]</td>
+                            <td>@row["PICKED_QUANTITY"]</td>
+                            <td>@row["UNIT_PRICE"]</td>
+                            <td>@row["CURRENCY"]</td>
+                        </tr>
+
+
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <br />
+        <span style="color:red;">NO RECORDS ARE FOUND</span>
+    }
+}
+
+        @*BELOW FORM IS ITEM RETURN FORM.IT ACCEPTS INPUTS LIKE Return_Quantity,Location Codes.
+        IT HAS SUBMIT AND CANCEL BUTTONS.*@ 
+
+@if (Model.flag_item_return_form)
+{
+    <h4>RETURN FROM GARAGE FORM</h4>
+    <span style="color:red;" class="fs-4">@Model.Msg_Item_Return_Form</span>
+
+    <div class="row">
+        <div class="col-4 col-md-2"><label for="item_code">Item Code:</label></div>
+                <div class="col-8 col-md-4">@Return_From_GarageModel.item_code</div>
+        <div class="col-4 col-md-2"><label for="Ordered_Quantity">Ordered Quantity</label></div>
+                <div class="col-8 col-md-4">@Return_From_GarageModel.Ordered_Quantity</div>
+    </div>
+    <div class="row">
+        <div class="col-4 col-md-2"><label for="Picked_Quantity">Picked Quantity:</label></div>
+                <div class="col-8 col-md-4">@Return_From_GarageModel.Picked_Quantity</div>
+        <div class="col-4 col-md-2">
+            <label for="item_price">Unit Item Price:</label>
+        </div>
+                <div class="col-8 col-md-4">@Return_From_GarageModel.item_price</div>
+        
+    </div>
+    <div class="row">
+                <div class="col-4 col-md-2"><label for="Currency">Item Currency:</label></div>
+                <div class="col-8 col-md-4">@Return_From_GarageModel.Currency</div>
+
+        <div class="col-4 col-md-2"><label for="Return_Quantity">Return Quantity:</label></div>
+                <div class="col-8 col-md-4"><input type="number" asp-for="@Model.Return_Quantity" onkeypress="return event.keyCode != 13;" /></div>
+    </div>
+    <div class="row">
+                <div class="col-4 col-md-2"><label for="rm_ponumber">RM PONumber:</label></div>
+                <div class="col-8 col-md-4">@Return_From_GarageModel.rm_ponumber</div>
+        
+                <div class="col-4 col-md-2"><label for="location_id">Location Codes:</label></div>
+                <div class="col-8 col-md-4">
+                    <select class="DDL_Locations" asp-for="@Model.location_id" asp-items="@(new SelectList(Return_From_GarageModel.locationList, "Location_ID", "Location_Code"))" style="max-width:100%;">
+                        <option value=0>PICK ONE</option>
+                    </select><br />
+                    <span asp-validation-for="location_id" class="text-danger"></span>
+                </div>
+               
+    </div>
+    <div class="row">
+       
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitReturnItem" onclick="spinner();">
+                    <i class="fas fa-save" style="color:green;" title="SAVE RETURN ITEM"></i>
+
+                </button>
+            </div>
+       
+            
+        <div class="col-2 col-md-1">
+            <button asp-page-handler="CancelReturnItem">
+                <i class="fa-solid fa-x" style="color:red;" title="CANCEL" onclick="spinner();"></i>
+
+            </button>
+        </div>
+
+    </div>
+}
+</form>
+</body>
+</html>
+
+
+
+
+
+
+    

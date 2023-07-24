@@ -1,0 +1,309 @@
+﻿@page
+@model RM_Warehouse.Pages.Put_AwayModel
+@{
+    ViewData["Title"] = "Put Away";
+}
+@using System.Data;
+
+@*BELOW CODE WORKS FOR NESTED DATATABLES - COLLAPSE AND SHOW*@
+
+<script>
+    $(document).ready(function () {
+        $(".toptable tr.nested").hide();
+        $(".toptable td.showHide").on('click', function () {
+            if ($(this).html() == '+') {
+                $(this).html('-');
+                $(this).parent('tr').next('tr.nested').show();
+            }
+            else {
+                $(this).html('+');
+                $(this).parent('tr').next('tr.nested').hide();
+            }
+        });
+    });
+</script>
+
+@*BELOW CODE SHOWS ALERT MESSAGE FROM CODE BEHIND*@
+
+
+@if (TempData["ConfirmationMessage"] != null)
+{
+    <script type="text/javascript">
+        window.onload = function () {
+            alert("@TempData["ConfirmationMessage"]");
+        };
+    </script>
+}
+
+<form method="post">
+@if (Model.flag_orders)
+{
+   @* BELOW GRID SHOWS INBOUND RECIEVED ORDERS WITH RECEIVED ITEMS.
+       THIS ALSO HAS PUT AWAY BUTTON FOR EACH DETAIL ROW.
+   *@
+
+    @if (Put_AwayModel.dt_orders != null)
+    {
+            <h4>ORDERS TO BE PUT AWAY</h4>
+        
+            <div class="table-responsive" style="max-height:450px;font-size:small;">
+                <table class="table table-bordered table-striped toptable" height="30%">
+                    <thead class="FixedHeader">
+                        <tr>
+                            <td></td>
+                            <td>ORDER_ID</td>
+                            <td>ORDER_DATE</td>
+                            <td>PONUMBER</td>
+                            <td>ESTIMATED ARRIVAL DATE</td>
+                            <td>VENDOR NAME</td>
+                            <td>ENTER_DATE</td>
+                            <td>ENTER_BY</td>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @try
+                        {
+                            @foreach (DataRow row in Put_AwayModel.dt_orders.Rows)
+                            {
+                                <tr class="accordion">
+                                    <td class="showHide" style="cursor: pointer;font-size:x-large;">
+                                        +
+                                    </td>
+                                    <td>@row["ORDER_ID"]</td>
+                                    <td>@row["ORDER_DATE"]</td>
+                                    <td>@row["PONUMBER"]</td>
+                                    <td>@row["ESTIMATED_ARRIVAL_DATE"]</td>
+                                    <td>@row["Vendor_Name"]</td>
+                                    <td>@row["ENTER_DATE"]</td>
+                                    <td>@row["ENTER_BY"]</td>
+                                </tr>
+                                <tr class="nested">
+                                    <td colspan="9">
+                                        @try
+                                        {
+                                            @foreach (DataTable table_1 in Put_AwayModel.nested_tables.Tables)
+                                            {
+                                                @if (table_1.TableName == row["ORDER_ID"].ToString())
+                                                {
+                                                    <div class="table-responsive" style="max-height:450px;font-size:small;">
+                                                        <table class="table table-bordered table-striped" height="30%">
+                                                            <thead class="LightGreen">
+                                                                <tr>
+                                                                    <td></td>
+                                                                    <td>ID</td>
+                                                                    <td>ORDER_ID</td>
+                                                                    <td>ITEM CODE</td>
+                                                                    <td>ITEM_DESCRIPTION</td>
+                                                                    <td>ORDERED QUANTITY</td>
+                                                                    <td>COST</td>
+                                                                    <td>CURRENCY</td>
+                                                                    <td>RECEIVED_QUANTITY</td>
+                                                                    <td>QUANTITY_PLACED</td>
+                                                                    <td>RECEIVED_DATE</td>
+                                                                    <td>EXPIRY_DATE</td>
+                                                                    <td>RECEIVED_BY</td>
+                                                                </tr>
+                                                            </thead>
+
+                                                            <tbody>
+                                                                @foreach (DataRow row_nested in table_1.Rows)
+                                                                {
+                                                                    <tr>
+                                                                        <td>
+                                                                            <button asp-page-handler="PutAway" onclick="spinner();" asp-route-order_id_1="@row["ORDER_ID"]" asp-route-deatils_id_1="@row_nested["ID"]" asp-route-item_code_1="@row_nested["Item_Code"]" asp-route-item_id_1="@row_nested["Item_ID"]" asp-route-expiry_date_1="@row_nested["EXPIRY_DATE"]" asp-route-item_desc_1="@row_nested["Item_Desc"]">
+                                                                                <i class="fa-solid fa-folder-open" style="color:blue;" title="PUT AWAY"></i>
+                                                                            </button>
+
+                                                                        </td>
+                                                                        <td>@row_nested["ID"]</td>
+                                                                        <td>@row_nested["ORDER_ID"]</td>
+                                                                        <td>@row_nested["Item_Code"]</td>
+                                                                        <td>@row_nested["Item_Desc"]</td>
+                                                                        <td>@row_nested["ORDERED_QUANTITY"]</td>
+                                                                        <td>@row_nested["COST"]</td>
+                                                                        <td>@row_nested["CURRENCY"]</td>
+                                                                        <td>@row_nested["RECEIVED_QUANTITY"]</td>
+                                                                        <td>@row_nested["QUANTITY_PLACED"]</td>
+                                                                        <td>@row_nested["RECEIVED_DATE"]</td>
+                                                                        <td>
+                                                                            @if (@row_nested["EXPIRY_DATE"] != DBNull.Value)
+                                                                            {
+                                                                                @Convert.ToDateTime(row_nested["EXPIRY_DATE"]).ToString("M/d/yyyy")
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                @row_nested["EXPIRY_DATE"]
+                                                                            }
+                                                                        </td>
+                                                                        <td>@row_nested["RECEIVED_BY"]</td>
+                                                                    </tr>
+
+
+                                                                }
+                                                                
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                }
+
+                                            }
+                                        }
+
+                                        catch (NullReferenceException ex)
+                                        {
+                                            return;
+                                        }
+                                    </td>
+                                </tr>
+
+
+
+                            }
+                        }
+                        catch (NullReferenceException ex)
+                        {
+                            return;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        
+    }
+        else
+        {
+            <br />
+            <span style="color:red;">NO RECORDS ARE FOUND</span>
+        }
+}
+
+@*BELOW FORM IS PUT AWAY FORM,WHICH ACCEPTS INPUTS - EXPIRY DATE,LOCATION_CODE AND QUANTITY_PLACED.
+ALSO,IT SHOWS ALL LOCATIONS FOR SAME ITEM PLACED. *@
+
+@if(Model.flag_orders_put_away_form)
+{
+        <span style="color:red;" class="fs-4">@Model.Msg_Put_Away_Form</span>
+        <div class="row">
+            <div class="col-2 col-md-2">
+                <label for="order_id">Order ID:</label>
+            </div>
+            <div class="col-4 col-md-2">@Put_AwayModel.order_id</div>
+            <div class="col-2 col-md-2">
+                <label for="item_code">Item Code:</label>
+            </div>
+            <div class="col-4 col-md-2"><input asp-for="@Put_AwayModel.item_id" type="hidden" />@Put_AwayModel.item_code</div>
+            
+       
+        </div>
+        <div class="row">
+            <div class="col-2 col-md-2">
+                <label for="item_description">Item Description:</label>
+            </div>
+            <div class="col-4 col-md-2">@Put_AwayModel.item_description</div>
+            
+            <div class="col-4 col-md-2">
+                    <label for="quantity_left">Quantity Left:</label>
+                    </div>
+            <div class="col-2 col-md-2">@Put_AwayModel.quantity_left</div>
+            
+        </div>
+        <div class="row">
+            <div class="col-2 col-md-2">
+                <label for="expiry_date">Expiry Date: (If any)</label>
+            </div>
+            <div class="col-4 col-md-2"><input asp-for="@Model.expiry_date" type="date" onkeypress="return event.keyCode != 13;" /></div>
+           
+        </div>
+        
+        <br />
+        
+        @if(Model.flag_locations)
+        {
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="location_id_form">Location Code:</label></div>
+                <div class="col-8 col-md-2">
+                    <select asp-for="@Model.location_id_form" asp-items="@(new SelectList(Put_AwayModel.locationList, "Location_ID", "Location_Code"))">
+                        <option value=0>PICK ONE</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="quantity_placed">Quantity Placed:</label></div>
+                <div class="col-8 col-md-2">
+                    <input asp-for="@Model.quantity_placed" type="number" onkeypress="return event.keyCode != 13;">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2 col-md-1">
+                    <button asp-page-handler="Submit">
+                        <i class="fas fa-save" style="color:green;" title="SAVE INVENTORY"></i>
+                    </button>
+
+                </div>
+                <div class="col-2 col-md-1">
+                    <button asp-page-handler="Cancel">
+                        <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                    </button>
+                </div>
+            </div>
+
+            @*SHOWING LOCATIONS WHERE THIS ITEM IS ALREADY PLACED*@
+
+            @if (Put_AwayModel.dt_loc_for_item_id != null)
+            {
+                <hr />
+                <div class="table-responsive" style="max-height:300px;">
+                    @*<div style="overflow-x:auto;height:50vh;overflow-y:auto;width:1125px;" class="table-responsive">*@
+                    <table class="table table-bordered table-striped" height="30%">
+                        <thead class="FixedHeader">
+                            <tr>
+                                <td>Location_Code</td>
+                                <td>QTY_In_Hand</td>
+                                <td>Expiry_Date</td>
+                                
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @try
+                            {
+                                @foreach (DataRow row in Put_AwayModel.dt_loc_for_item_id.Rows)
+                                {
+                                    <tr>
+                                        <td>@row["Location_Code"]</td>
+                                        <td>@row["QTY_In_Hand"]</td>
+                                        <td>
+                                            @if (@row["EXPIRY_DATE"] != DBNull.Value)
+                                            {
+                                                @Convert.ToDateTime(row["EXPIRY_DATE"]).ToString("M/d/yyyy")
+                                            }
+                                            else
+                                            {
+                                                @row["EXPIRY_DATE"]
+                                            }
+                                        </td>
+                                        
+                                    </tr>
+                                }
+                            }
+                            catch (NullReferenceException ex)
+                            {
+                                return;
+                            }
+
+
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <br />
+                <span style="color:red;">NO RECORDS ARE FOUND</span>
+            }
+        }
+    
+}
+</form>

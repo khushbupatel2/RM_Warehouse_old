@@ -1,0 +1,265 @@
+﻿@using Microsoft.AspNetCore.Http;
+
+<!doctype html>
+<html lang="en">
+<head>
+	<title>@ViewData["Title"]</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+
+	<link rel="stylesheet" href="~/css/style.css">
+
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+
+	<!-- Our Custom CSS -->
+	<link rel="stylesheet" href="~/css/Table.css" />
+	<link rel="stylesheet" href="~/css/loader.css" />
+
+	<!-- Font Awesome Icons Files -->
+
+	<link href="~/lib/font-awesome/css/all.min.css" rel="stylesheet" />
+	<script src="~/lib/font-awesome/js/all.min.js"></script>
+	@*<script src="~/js/jquery.min.js"></script>*@
+	<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+	<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+	<script src="~/js/spinner.js"></script>
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+	@*Select2 search in Dropdown files*@
+	
+@*	<link rel="stylesheet" href="~/css/select2.min.css" />
+	<script src="~/js/select2.min.js"></script>*@
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+			
+</head>
+<body>
+	
+
+	<div class="wrapper d-flex align-items-stretch">
+		<nav id="sidebar">
+			<div class="custom-menu">
+				<button type="button" id="sidebarCollapse" class="btn btn-primary">
+					<i class="fa fa-bars"></i>
+					<span class="sr-only">Toggle Menu</span>
+				</button>
+			</div>
+			<div class="p-2">
+				<!--<h1><a href="index.html" class="logo">Hunter Express</a></h1>-->
+				<img src="~/logo.svg" width="150px" height="150px" style="position:relative;top:-20px;left:38px;" />
+				<br/>
+				<span style="color:yellow">@Context.Session.GetString("warehouse")</span>
+				<ul class="list-unstyled components mb-1">
+					@if (IndexModel.flag_Order_Entry_Inbound || IndexModel.flag_Receive_Order || IndexModel.flag_Put_Away || IndexModel.flag_Order_Entry_Outbound || IndexModel.flag_Pick || IndexModel.flag_Complete_Order)
+					{
+						<li class="active">
+							<a href="#Odr_Manage" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle" style="font-size:small;text-decoration:none;">Order Management</a>
+
+							<ul class="collapse list-unstyled" id="Odr_Manage">
+								@if (IndexModel.flag_Order_Entry_Inbound || IndexModel.flag_Receive_Order || IndexModel.flag_Put_Away)
+								{
+									<li>
+										<a href="#In_Odr" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle" style="font-size:smaller;text-decoration:none;">Inbound Order</a>
+										<ul class="collapse list-unstyled" id="In_Odr">
+											@if (IndexModel.flag_Order_Entry_Inbound)
+											{
+												<li>
+													<a href="/Order_Entry_Inbound" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Order Entry</a>
+												</li>
+											}
+											@if (IndexModel.flag_Receive_Order)
+											{
+												<li>
+													<a href="/Receive_Order" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Receive Order</a>
+												</li>
+											}
+											@if (IndexModel.flag_Put_Away)
+											{
+												<li>
+													<a href="/Put_Away" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Put Away</a>
+												</li>
+											}
+
+										</ul>
+									</li>
+								}
+								@if (IndexModel.flag_Order_Entry_Outbound || IndexModel.flag_Pick || IndexModel.flag_Complete_Order)
+								{
+									<li>
+										<a href="#Out_Odr" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle" style="font-size:smaller;text-decoration:none;">Outbound Order</a>
+										<ul class="collapse list-unstyled" id="Out_Odr">
+											@if (IndexModel.flag_Order_Entry_Outbound)
+											{
+												<li>
+													<a href="/Order_Entry_Outbound" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Order Entry</a>
+												</li>
+											}
+											@if (IndexModel.flag_Pick)
+											{
+												<li>
+													<a href="/Pick" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Pick</a>
+												</li>
+											}
+											@if (IndexModel.flag_Complete_Order)
+											{
+												<li>
+													<a href="/Complete_Order" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Complete Order</a>
+												</li>
+											}
+										</ul>
+									</li>
+								}
+							</ul>
+						</li>
+					}
+					@if (IndexModel.flag_Move_Inventory ||   IndexModel.flag_Warehouse_Master || IndexModel.flag_Location_Master || IndexModel.flag_Item_Master)
+					{
+						<li>
+							<a href="#Ware_Manage" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle" style="font-size:small;text-decoration:none;">Warehouse Management</a>
+							<ul class="collapse list-unstyled" id="Ware_Manage">
+								@if (IndexModel.flag_Warehouse_Master)
+								{
+									<li>
+										<a href="/Warehouse_Master" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Warehouse Master</a>
+									</li>
+								}
+								@if (IndexModel.flag_Location_Master || IndexModel.flag_Move_Inventory)
+								{
+									<li>
+										<a href="#Inv_Loc" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle" style="font-size:smaller;text-decoration:none;">Inventory Location</a>
+										<ul class="collapse list-unstyled" id="Inv_Loc">
+											@if (IndexModel.flag_Location_Master)
+											{
+												<li>
+													<a href="/Location_Master" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Location Master</a>
+												</li>
+											}
+											@if (IndexModel.flag_Move_Inventory)
+											{
+												<li>
+													<a href="/Move_Inventory" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Move Inventory</a>
+												</li>
+											}
+										</ul>
+									</li>
+								}
+								@if (IndexModel.flag_Item_Master)
+								{
+									<li>
+										<a href="/Item_Master" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Item Master</a>
+									</li>
+								
+								}
+							</ul>
+						</li>
+					}
+					@if (IndexModel.flag_Vendor_Index)
+							{
+								<li>
+									<a href="/Vendor_Index" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Vendor Master</a>
+								</li>
+							}
+
+					
+					@if (IndexModel.flag_Put_Away_History || IndexModel.flag_Pick_History || IndexModel.flag_0_Inventory)
+					{
+						<li>
+							<a href="#Reports" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle" style="font-size:small;text-decoration:none;">Reports</a>
+							<ul class="collapse list-unstyled" id="Reports">
+								@if (IndexModel.flag_Put_Away_History)
+								{
+									<li>
+										<a href="/Put_Away_History" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Put Away History</a>
+									</li>
+								}
+								@if (IndexModel.flag_Pick_History)
+								{
+									<li>
+										<a href="/Pick_History" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Pick History</a>
+									</li>
+								}
+								@if (IndexModel.flag_0_Inventory)
+								{
+									<li>
+										<a href="/0_Inventory" style="font-size:smaller;text-decoration:none;" onclick="spinner();">0 Inventory</a>
+									</li>
+								}
+							</ul>
+						</li>
+					}
+					@if (IndexModel.flag_Admin_Warehouse)
+					{
+						<li>
+							<a href="/Admin_Warehouse" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Admin - Warehouse</a>
+						</li>
+					}
+					@if (IndexModel.flag_Admin_Pages)
+					{
+						<li>
+							<a href="/Admin_Pages" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Admin - Pages</a>
+						</li>
+					}
+					@if (IndexModel.flag_PO_Invoice_Process)
+					{
+						<li>
+							<a href="/PO_INVOICE_PROCESS" style="font-size:smaller;text-decoration:none;" onclick="spinner();">PO INVOICE PROCESS</a>
+						</li>
+					}
+					@if (IndexModel.flag_Return_From_Garage || IndexModel.flag_Return_To_Vendor)
+					{
+						<li>
+							<a href="#Returns" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle" style="font-size:small;text-decoration:none;">Return Items</a>
+							<ul class="collapse list-unstyled" id="Returns">
+							@if (IndexModel.flag_Return_From_Garage)
+								{
+									<li>
+										<a href="/Return_From_Garage" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Return From Garage</a>
+									</li>
+								}
+								@if (IndexModel.flag_Return_To_Vendor)
+								{
+									<li>
+										<a href="/Return_To_Vendor" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Return To Vendor</a>
+									</li>
+								}
+								
+							</ul>
+						</li>
+					}
+					@if (IndexModel.flag_Notes)
+					{
+						<li>
+							<a href="/Notes" style="font-size:smaller;text-decoration:none;" onclick="spinner();">Notes</a>
+						</li>
+					}
+
+							<li>
+						<a asp-page="Welcome" asp-page-handler="Logout" style="font-size:smaller;text-decoration:none;">Welcome <span style="color:yellow">@Context.Session.GetString("username")</span> -- Logout</a>
+							</li>
+						</ul>
+
+
+						<div class="footer">
+							<p>
+								Copyright &copy;
+								<script>document.write(new Date().getFullYear());</script> Hunter Express Inc.
+							</p>
+						</div>
+
+			</div>
+		</nav>
+
+		<!-- Page Content  -->
+		<div id="content" class="p-4 p-md-5 pt-5" style="overflow-x:hidden;">
+
+			@RenderBody()
+		</div>
+	</div>
+	<script src="~/js/popper.js"></script>
+	<script src="~/js/bootstrap.min.js"></script>
+	<script src="~/js/main.js"></script>
+
+
+</body>
+</html>

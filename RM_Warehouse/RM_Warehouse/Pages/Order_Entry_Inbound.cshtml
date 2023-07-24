@@ -1,0 +1,381 @@
+﻿@page
+@model RM_Warehouse.Pages.Order_Entry_InboundModel
+@{
+    ViewData["Title"] = "Order Entry - Inbound";
+}
+@using System.Data;
+
+@*BELOW CODE WORKS FOR NESTED DATATABLES - COLLAPSE AND SHOW*@
+
+<script>$(document).ready(function () {
+                $(".toptable tr.nested").hide();
+                $(".toptable td.showHide").on('click',function () {
+                if($(this).html() == '+'){
+                    $(this).html('-');
+                    $(this).parent('tr').next('tr.nested').show();
+                }
+                else{
+                    $(this).html('+');
+                    $(this).parent('tr').next('tr.nested').hide();
+                }
+                });
+// BELOW CODE CREATES SEARCHABLE DROPDOWNS FOR VENDORS AND ITEMS_CODES
+
+        $('.Ddl_Vendors').select2();
+        $('.Ddl_Items').select2();
+        });
+</script>
+<form method="post">
+
+@if(Model.flag_no_order_open)
+{
+<br />
+<a href="Order_Entry_Inbound" onclick="spinner();">Show All Orders.</a>
+
+<br />
+
+    <button asp-page-handler="Add_Order">
+        <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW ORDER"></i>
+    </button>
+}
+@if (Model.flag_orders)
+{
+    @*BELOW GRID SHOWS INBOUND ORDERS WITH ORDER_STATUS='CREATED'
+    ALSO,NESTED TABLE SHOWS ORDER DETAILS WITH ITEMS IS_RECEIVED=false.
+    *@
+
+    @if (Order_Entry_InboundModel.dt_orders != null)
+    {
+        <h4>INBOUND ORDERS</h4>
+        <div class="table-responsive" style="max-height:450px;font-size:small;">
+            <table class="table table-bordered table-striped toptable" height="30%">
+                <thead class="FixedHeader">
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>ORDER_ID</td>
+                        <td>ORDER_DATE</td>
+                        <td>PONUMBER</td>
+                        <td>ESTIMATED ARRIVAL DATE</td>
+                        <td>VENDOR NAME</td>
+                        <td>ORDER DESCRIPTION</td>
+                        <td>ENTER_DATE</td>
+                        <td>ENTER_BY</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @try
+                    {
+                            @foreach (DataRow row in Order_Entry_InboundModel.dt_orders.Rows)
+                        {
+                            <tr class="accordion">
+                                <td class="showHide" style="cursor: pointer;font-size:x-large;">
+                                    +
+                                </td>
+                                <td>
+                                        <button asp-page-handler="EditOrder" onclick="spinner();" asp-route-order_id_1="@row["ORDER_ID"]" asp-route-order_date="@row["ORDER_DATE"]" asp-route-ponumber="@row["PONUMBER"]" asp-route-estimated_arrival_date="@row["ESTIMATED_ARRIVAL_DATE"]" asp-route-vendor_name="@row["Vendor_Name"]" asp-route-order_description="@row["ORDER_DESCRIPTION"]">
+                                        <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT ORDER"></i>
+                                    </button>
+                                </td>
+                                <td>@row["ORDER_ID"]</td>
+                                <td>@row["ORDER_DATE"]</td>
+                                <td>@row["PONUMBER"]</td>
+                                <td>@row["ESTIMATED_ARRIVAL_DATE"]</td>
+                                <td>@row["Vendor_Name"]</td>
+                                <td>@row["ORDER_DESCRIPTION"]</td>
+                                <td>@row["ENTER_DATE"]</td>
+                                <td>@row["ENTER_BY"]</td>
+                            </tr>
+                            <tr class="nested">
+                                <td colspan="10">
+                                    @try
+                                    {
+                                        @foreach (DataTable table_1 in Model.nested_tables.Tables)
+                                        {
+                                            @if (table_1.TableName == row["ORDER_ID"].ToString())
+                                            {
+                                                <div class="table-responsive" style="max-height:450px;font-size:small;">                                            
+                                                    <table class="table table-bordered table-striped" height="30%">
+                                                        <thead class="LightGreen">
+                                                            <tr>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td>ID</td>
+                                                                <td>ORDER_ID</td>
+                                                                <td>ITEM CODE</td>
+                                                                <td>ITEM_DESCRIPTION</td>
+                                                                <td>ORDERED QUANTITY</td>
+                                                                <td>COST</td>
+                                                                <td>CURRENCY</td>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody> 
+                                                            @foreach (DataRow row_nested in table_1.Rows)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                            <button asp-page-handler="EditItem" onclick="spinner();" asp-route-id_1="@row_nested["ID"]" asp-route-order_id_1="@row_nested["ORDER_ID"]" asp-route-item_id_1="@row_nested["Item_ID"]" asp-route-ordered_quantity_1="@row_nested["ORDERED_QUANTITY"]" asp-route-cost_1="@row_nested["COST"]" asp-route-currency_1="@row_nested["CURRENCY"]">
+                                                                            <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT ITEM"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                    <td>
+                                                                        <button asp-page-handler="DeleteItem" onclick="spinner();" asp-route-id="@row_nested["ID"]" asp-route-order_id_1="@row_nested["ORDER_ID"]">
+                                                                            <i class="fa fa-trash" style="color:black;" title="DELETE ITEM"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                    <td>@row_nested["ID"]</td>
+                                                                    <td>@row_nested["ORDER_ID"]</td>
+                                                                    <td>@row_nested["Item_Code"]</td>
+                                                                    <td>@row_nested["Item_Desc"]</td>
+                                                                    <td>@row_nested["ORDERED_QUANTITY"]</td>
+                                                                    <td>@row_nested["COST"]</td>
+                                                                    <td>@row_nested["CURRENCY"]</td>
+                                                                </tr>
+
+
+                                                            }
+                                                            
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+
+                                        }
+                                    }
+
+                                    catch (NullReferenceException ex)
+                                    {
+                                        return;
+                                    }
+                                </td>
+                            </tr>
+
+
+
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+                </tbody>
+            </table>
+            </div>
+        }
+        else
+        {
+            <br/>
+            <span style="color:red;">NO RECORDS ARE FOUND</span>
+        }
+    }
+
+    @* BELOW FORM IS ORDER ENTRY FORM FOR INSERT/UPDATE AN ORDER*@
+
+@if (Model.flag_new_order_form)
+{
+<h4>Order Entry Form</h4>
+        @if (@Order_Entry_InboundModel.Order_ID != 0)
+{
+            <h4>Order ID:@Order_Entry_InboundModel.Order_ID</h4>
+}
+    <span style="color:red;" class="fs-4">@Model.Msg_Order_Form</span>
+<br />
+
+    <div class="row">
+            <div class="col-4 col-md-2"><label for="Order_Date">Order Date:</label></div>
+            <div class="col-8 col-md-4"><input asp-for="@Model.Order_Date" type="datetime-local" value="@Model.Order_Date.ToString("yyyy-MM-ddTHH:mm:ss")" onkeypress="return event.keyCode != 13;" /></div>
+                <div class="col-4 col-md-2"><label for="PONumber">PONumber:</label></div>
+            <div class="col-4 col-md-2">@*<input type="text" asp-for="@Model.PONumber" onkeypress="return event.keyCode != 13;" />*@
+                <label for="PONumber"><input type="hidden" asp-for="@Model.PONumber" value="@Model.PONumber" />@Model.PONumber</label>
+            </div>
+            @if (@Order_Entry_InboundModel.Order_ID == 0)
+            {
+                <div class="col-2 col-md-1">
+                    <button asp-page-handler="GeneratePONumber" onclick="spinner();">
+                        <i class="fa fa-info" style="color:green;" title="GENERATE PONUMBER"></i>
+                    </button>
+                </div>
+            }
+            
+
+    </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Estimated_Arrival_Date">Estimated Arrival Date:</label></div>
+            <div class="col-8 col-md-4"><input type="datetime-local" asp-for="@Model.Estimated_Arrival_Date" value="@Model.Estimated_Arrival_Date.ToString("yyyy-MM-ddTHH:mm:ss")" onkeypress="return event.keyCode != 13;" /></div>
+            <div class="col-4 col-md-2"><label for="vendor_id">Vendor Name</label></div>
+            <div class="col-8 col-md-4">
+                <select class="Ddl_Vendors" asp-for="@Model.vendor_id" asp-items="@(new SelectList(Order_Entry_InboundModel.vendorList, "Vendor_ID", "Vendor_Name"))" style="max-width:100%;">
+                    <option value=0>PICK ONE</option>
+                </select><br />
+                <span asp-validation-for="vendor_id" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2"><label for="Order_Description">Order Description:</label></div>
+            <div class="col-8 col-md-4"><textarea asp-for="@Model.Order_Description" rows="3" cols="50" ></textarea></div>
+        </div>
+
+        <div class="row">
+            @if (@Order_Entry_InboundModel.Order_ID != 0)
+        {
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitOrder" onclick="spinner();" asp-route-flag_updated="true">
+                    <i class="fas fa-save" style="color:green;" title="SAVE UPDATED ORDER"></i>
+                        
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitOrder" onclick="spinner();" asp-route-flag_updated="false">
+                    <i class="fas fa-save" style="color:green;" title="SAVE NEW ORDER"></i>
+
+                </button>
+            </div>
+        }
+        <div class="col-2 col-md-1">
+                <button asp-page-handler="CancelOrder" onclick="spinner();">
+                    <i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+
+                </button>
+            </div>
+        </div>
+
+}
+@*BELOW FORM IS ITEM ENTRY FORM FOR INSERT/UPDATE AN ITEM*@
+
+@if(Model.flag_item_entry_form)
+{
+
+        <h4>Order ID:@Order_Entry_InboundModel.Order_ID</h4>
+        @if (@Order_Entry_InboundModel.details_id != 0)
+{
+            <h4>Details ID:@Order_Entry_InboundModel.details_id</h4>
+}
+<span style="color:red;" class="fs-4">@Model.Msg_Item_Form</span>
+        
+    <div class="row">
+        <div class="col-4 col-md-2"><label for="@Model.item_id">Item Code:</label></div>
+        <div class="col-8 col-md-4">
+                <select class="Ddl_Items" asp-for="@Model.item_id" asp-items="@(new SelectList(Order_Entry_InboundModel.itemList, "Item_ID", "Item_Code_Description"))" style="max-width:100%;">
+                <option value="0">PICK ONE</option>
+            </select><br />
+            <span asp-validation-for="@Model.item_id" class="text-danger"></span>
+        </div>
+        <div class="col-4 col-md-2"><label for="Ordered_Quantity">Ordered Quantity</label></div>
+            <div class="col-8 col-md-4"><input type="number" asp-for="@Model.Ordered_Quantity" onkeypress="return event.keyCode != 13;" /></div>
+    </div>
+    <div class="row">
+            <div class="col-4 col-md-2"><label for="Cost">Cost</label></div>
+            <div class="col-8 col-md-4"><input type="number" asp-for="@Model.Cost" step=".01" onkeypress="return event.keyCode != 13;" /></div>
+            <div class="col-4 col-md-2"><label for="Currency">Currency</label></div>
+            <div class="col-8 col-md-4">
+                <select asp-for="@Model.Currency">
+                    <option value="0">PICK ONE</option>
+                    <option value="CAD">CAD</option>
+                    <option value="USD">USD</option>
+                </select><br />
+            </div>
+    </div>
+    <div class="row">
+            @if (@Order_Entry_InboundModel.details_id != 0)
+        {
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitItem" asp-route-flag_updated="true" onclick="spinner();">
+                <i class="fas fa-save" style="color:green;" title="SAVE UPDATED ITEM"></i>
+
+            </button>
+            </div>
+        }
+        else
+        {
+            <div class="col-2 col-md-1">
+                <button asp-page-handler="SubmitItem" asp-route-flag_updated="false" onclick="spinner();">
+                    <i class="fas fa-save" style="color:green;" title="SAVE NEW ITEM"></i>
+
+                </button>
+            </div>
+        }
+        <div class="col-2 col-md-1">
+            <button asp-page-handler="CancelItem">
+                <i class="fa-solid fa-x" style="color:red;" title="CANCEL" onclick="spinner();"></i>
+
+            </button>
+        </div>
+            
+    </div>
+
+}
+   
+@if(Model.flag_items)
+{
+        <hr>
+
+        <button asp-page-handler="Add_Item" onclick="spinner();">
+            <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW ITEM"></i>
+        </button>
+
+    @*BELOW DATATABLE dt_items SHOWS ITEMS PRESENT IN THIS ORDER WITH EDIT AND DELETE BUTTONS.*@
+
+    @if (Order_Entry_InboundModel.dt_items != null)
+    {
+        <div class="table-responsive" style="max-height:450px;font-size:small;">
+            @*<div style="overflow-x:auto;height:50vh;overflow-y:auto;width:1125px;" class="table-responsive">*@
+            <table class="table table-bordered table-striped" height="30%">
+                @*<thead class="FixedHeader">*@
+                <thead class="LightGreen">
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>ID</td>
+                    <td>ORDER_ID</td>
+                    <td>ITEM CODE</td>
+                    <td>ITEM_DESCRIPTION</td>
+                    <td>ORDERED QUANTITY</td>
+                    <td>COST</td>
+                    <td>CURRENCY</td>
+                </tr>
+            </thead>
+
+                <tbody>
+                    @try
+                    {
+                            @foreach (DataRow row in Order_Entry_InboundModel.dt_items.Rows)
+                        {
+                            <tr>
+                                <td>
+                                        <button asp-page-handler="EditItem" onclick="spinner();" asp-route-id_1="@row["ID"]" asp-route-order_id_1="@row["ORDER_ID"]" asp-route-item_id_1="@row["Item_ID"]" asp-route-ordered_quantity_1="@row["ORDERED_QUANTITY"]" asp-route-cost_1="@row["COST"]" asp-route-currency_1="@row["CURRENCY"]">
+                                        <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT ITEM"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button asp-page-handler="DeleteItem" onclick="spinner();" asp-route-id="@row["ID"]" asp-route-order_id_1="@row["ORDER_ID"]">
+                                        <i class="fa fa-trash" style="color:black;" title="DELETE ITEM"></i>
+                                    </button>
+                                </td>
+                                <td>@row["ID"]</td>
+                                <td>@row["ORDER_ID"]</td>
+                                <td>@row["Item_Code"]</td>
+                                <td>@row["Item_Desc"]</td>
+                                <td>@row["ORDERED_QUANTITY"]</td>
+                                <td>@row["COST"]</td>
+                                <td>@row["CURRENCY"]</td>
+                            </tr>
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+
+
+                </tbody>
+            </table>
+        </div>
+    }
+}
+</form>
+

@@ -1,0 +1,137 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = RM_Warehouse
+build_property.RootNamespace = RM_Warehouse
+build_property.ProjectDir = C:\Projects\RMWareHouse\RM_Warehouse\RM_Warehouse\
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Projects\RMWareHouse\RM_Warehouse\RM_Warehouse
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/0_Inventory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcMF9JbnZlbnRvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Admin_Pages.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5fUGFnZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Admin_Warehouse.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5fV2FyZWhvdXNlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Complete_Order.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29tcGxldGVfT3JkZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Inhand_Inventory_1.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5oYW5kX0ludmVudG9yeV8xLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Item_Master.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSXRlbV9NYXN0ZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Location_Master.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9jYXRpb25fTWFzdGVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Move_Inventory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTW92ZV9JbnZlbnRvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Notes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTm90ZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Order_Entry_Inbound.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJfRW50cnlfSW5ib3VuZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Order_Entry_Outbound.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT3JkZXJfRW50cnlfT3V0Ym91bmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Pick.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGljay5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Pick_History.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGlja19IaXN0b3J5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/PO_INVOICE_PROCESS.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUE9fSU5WT0lDRV9QUk9DRVNTLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Put_Away.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHV0X0F3YXkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Put_Away_History.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHV0X0F3YXlfSGlzdG9yeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Receive_Order.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmVjZWl2ZV9PcmRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Return_From_Garage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmV0dXJuX0Zyb21fR2FyYWdlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Return_To_Vendor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUmV0dXJuX1RvX1ZlbmRvci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Under_Construction.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVW5kZXJfQ29uc3RydWN0aW9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Vendor_Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVmVuZG9yX0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/View_Image.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVmlld19JbWFnZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/View_Image_Item.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcVmlld19JbWFnZV9JdGVtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Warehouse_Master.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcV2FyZWhvdXNlX01hc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Welcome.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcV2VsY29tZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Projects/RMWareHouse/RM_Warehouse/RM_Warehouse/Pages/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-xubdbwsatx

@@ -1,0 +1,26 @@
+﻿@page
+@model RM_Warehouse.Pages.View_Image_ItemModel
+@{
+    ViewData["Title"] = "View Item Image";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+        
+</head>
+<body>
+
+    @*BELOW CODE CHECKS FILE EXTENSION .pdf . NON-PDF FILES ARE IMAGES.IT SHOWS FILES IN BROWSER.*@
+
+    @if(Model.extension.ToLower()==".pdf")
+    {
+        <embed src="@Model.file_name" width="1000" height="550" />
+    }
+    else
+    {
+        <img src="@Model.file_name" width="1000" height="550" />
+    }
+    <br />
+</body>
+</html>
+

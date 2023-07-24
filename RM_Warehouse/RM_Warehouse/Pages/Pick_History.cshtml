@@ -1,0 +1,111 @@
+﻿@page
+@model RM_Warehouse.Pages.Pick_HistoryModel
+@{
+    ViewData["Title"] = "Pick History";
+}
+@using System.Data;
+<form method="post">
+    <button asp-page-handler="Show_All_Logs">
+        <i class="fa-regular fa-map" style="color:blue;" title="SHOW ALL LOGS"></i>
+    </button>
+<br/>
+<span style="color:red;">@Model.Msg_Search</span>
+<br />
+    <h4>PICK LOGS</h4>
+
+    @*BELOW FORM FIELDS ARE FOR SERACHING PICK LOGS FROM DATABASE*@
+
+<div class="row">
+
+    <div class="col-12 col-md-8">
+        <label>Search Criteria:</label>
+        <input type="radio" value="Location Code" name="Search_Criteria" asp-for="@Model.Search_Criteria">
+        <label>Location Code</label>
+        <input type="radio" value="Item Code" name="Search_Criteria" asp-for="@Model.Search_Criteria">
+        <label>Item Code</label>
+        <input type="radio" value="Created By" name="Search_Criteria" asp-for="@Model.Search_Criteria">
+        <label>Created By</label>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-4 col-md-2"><label for="From_Date">From Date:</label></div>
+        <div class="col-8 col-md-3"><input asp-for="@Model.From_Date" type="datetime-local" value="@Model.From_Date.ToString("yyyy-MM-ddTHH:mm:ss")" onkeypress="return event.keyCode != 13;" /></div>
+    <div class="col-4 col-md-1"><label for="To_Date">To Date:</label></div>
+        <div class="col-8 col-md-3"><input asp-for="@Model.To_Date" type="datetime-local" value="@Model.To_Date.ToString("yyyy-MM-ddTHH:mm:ss")" onkeypress="return event.keyCode != 13;" /></div>
+</div>
+<div class="row">
+    <div class="col-9 col-md-4">
+        Search Value:
+            <input type="text" asp-for="@Model.Search_Value" onkeypress="return event.keyCode != 13;" />
+    </div>
+    <div class="col-3 col-md-1">
+            <button asp-page-handler="Search">
+                <i class="fas fa-search" style="color:blue;" title="SEARCH LOGS"></i>
+            </button>
+    </div>
+</div>
+
+
+@if (Pick_HistoryModel.dt_pick_logs != null)
+{
+    @*BELOW BUTTON DOES EXPORT TO EXCEL - FILE FOR dt_pick_logs DATATABLE*@
+
+    <button asp-page-handler="ExportToExcel" style="float:right;">
+        <i class="fa-solid fa-table" title="EXPORT TO EXCEL"></i>
+    </button>
+
+    @*BELOW GRID SHOWS ALL PICK LOGS OR SEACRHED PICK LOGS FROM DATABASE*@
+  
+    <div class="table-responsive" style="max-height:400px;">
+        <table class="table table-bordered table-striped" height="30%">
+            <thead class="FixedHeader">
+                <tr>
+                    <td>Details ID</td>
+                    <td>Location_Code</td>
+                    <td>Item_Code</td>
+                    <td>Item_Desc</td>
+                    <td>Quantity_Picked</td>
+                    <td>Picked_By</td>
+                    <td>Expiry_Date</td>
+                    <td>Record_Enter_Date</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                @try
+                {
+                        @foreach (DataRow row in Pick_HistoryModel.dt_pick_logs.Rows)
+                    {
+                        <tr>
+                            <td>@row["Details_ID"]</td>
+                            <td>@row["Location_Code"]</td>
+                            <td>@row["Item_Code"]</td>
+                            <td>@row["Item_Desc"]</td>
+                            <td>@row["Quantity_Picked"]</td>
+                            <td>@row["Picked_By"]</td>
+                            <td>
+                                @if (@row["Expiry_Date"] != DBNull.Value)
+                                {
+                                    @Convert.ToDateTime(row["Expiry_Date"]).ToString("M/d/yyyy")
+                                }
+                                else
+                                {
+                                    @row["Expiry_Date"]
+                                }
+                            </td>
+                            <td>@row["Record_Enter_Date"]</td>
+                        </tr>
+                    }
+                }
+                catch (NullReferenceException ex)
+                {
+                    return;
+                }
+
+
+            </tbody>
+        </table>
+    </div>
+}
+</form>

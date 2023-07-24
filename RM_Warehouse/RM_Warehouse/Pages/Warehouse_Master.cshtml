@@ -1,0 +1,186 @@
+﻿@page
+@model RM_Warehouse.Pages.Warehouse_MasterModel
+@using System.Data;
+@{
+    ViewData["Title"] = "Warehouse Master";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+
+    @*BELOW GRID SHOWS LIST OF WAREHOUSES PRESENT IN DATABASE.IT HAS Edit BUTTON FOR EACH ROW.*@
+
+    @if (Warehouse_MasterModel.dt_wh_all != null)
+    {
+        <h4>LIST OF WAREHOUSES</h4>
+        <div class="table-responsive" style="max-height:300px;">
+            <table class="table table-bordered table-striped" height="30%" >
+                <thead class="FixedHeader">
+                <tr>
+                    <td></td>
+                    <td>Warehouse_ID</td>
+                    <td>Name</td>
+                    <td>PO_Abbrivation</td>
+                    <td>Address1</td>
+                    <td>Address2</td>
+                    <td>City</td>
+                    <td>State Province</td>
+                    <td>Postal Code</td>
+                    <td>Country</td>
+                    <td>Phone</td>
+                    <td>Email</td>
+                    <td>Fax</td>
+                    <td>Default Receiving Location</td>
+                    <td>Is Active</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                    @try
+                    {
+                        @foreach (DataRow row in Warehouse_MasterModel.dt_wh_all.Rows)
+                        {
+                            <tr>
+                                <td>
+                                <form method="post">
+                                    <button asp-page-handler="Edit" asp-route-id="@row["Warehouse_ID"]">
+                                            <i class="fa-solid fa-pen-to-square" style="color:green;" title="EDIT WAREHOUSE"></i>
+                                    </button>
+                                </form>    
+                            </td>
+                                <td>@row["Warehouse_ID"]</td>
+                                <td>@row["Name"]</td>
+                                <td>@row["PO_ABBRIVATION"]</td>
+                                <td>@row["Address1"]</td>
+                                <td>@row["Address2"]</td>
+                                <td>@row["City"]</td>
+                                <td>@row["State_Province"]</td>
+                                <td>@row["Postal_Code"]</td>
+                                <td>@row["Country"]</td>
+                                <td>@row["Phone"]</td>
+                                <td>@row["Email"]</td>
+                                <td>@row["Fax"]</td>
+                                <td>@row["Default_Receiving_Location_Id"]</td>
+                                <td>@Convert.ToBoolean(row["Is_Active"])</td>
+                                
+                            </tr>
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+                
+
+            </tbody>
+        </table>
+    </div>
+    }
+    <hr />
+
+    @*BELOW CODE SHOWS ADD NEW WAREHOUSE BUTTON.*@
+
+    <div style="float:left;background-color:lightblue;">
+        <form method="post">
+            <button asp-page-handler="Add_Warehouse">
+                <i class="fa-solid fa-plus" style="color:blue;" title="ADD NEW WAREHOUSE"></i>
+            </button>
+        </form>  
+    </div><br/><br/>
+
+    @*BELOW FORM IS WAREHOUSE ENTRY FORM.IT ACCEPTS USER INPUTS.IT HAS SUBMIT AND CANCEL BUTTONS.*@
+
+    @if (Model.flag_entry_form)
+    {
+        <h4>Warehouse Entry Form</h4>
+
+        <span style="color:red;" class="fs-4">@Model.Msg</span>
+        <br />
+        <form method="post">
+            <div class="row">
+                <div class="col-4 col-md-2">
+                    @if(Model.warehouse_id != 0){ @Model.warehouse_id}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4 col-md-2">
+                    <input type="hidden" asp-for="@Model.warehouse_id" />
+                    <label for="name">Name</label>
+                </div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.name" onkeypress="return event.keyCode != 13;" /></div>
+                <div class="col-4 col-md-2"><label for="PO_Abbrivation">PO Abbrivation:</label></div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.po_abbrivation" onkeypress="return event.keyCode != 13;" /></div>
+            </div>
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="address1">Address1</label></div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.address1" onkeypress="return event.keyCode != 13;" /></div>
+                <div class="col-4 col-md-2"><label for="City">Address2</label></div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.address2" onkeypress="return event.keyCode != 13;" /></div>
+            </div>
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="city">City</label></div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.city" onkeypress="return event.keyCode != 13;" /></div>
+                <div class="col-4 col-md-2"><label for="state_province">Province State</label></div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.state_province" onkeypress="return event.keyCode != 13;" /></div>
+                
+            </div>
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="postal_code">Postal Code</label></div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.postal_code" onkeypress="return event.keyCode != 13;" /></div>
+                <div class="col-4 col-md-2"><label for="country">Country</label></div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.country" onkeypress="return event.keyCode != 13;" /></div>
+                
+            </div>
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="phone">Phone</label></div>
+                <div class="col-8 col-md-4"><input type="tel" asp-for="@Model.phone" onkeypress="return event.keyCode != 13;" /></div>
+                <div class="col-4 col-md-2"><label for="fax">Fax</label></div>
+                <div class="col-8 col-md-4"><input type="tel" asp-for="@Model.fax" onkeypress="return event.keyCode != 13;" /></div>
+                
+            </div>
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="email">Email</label></div>
+                <div class="col-8 col-md-4"><input type="email" asp-for="@Model.email" onkeypress="return event.keyCode != 13;" /></div>
+                <div class="col-4 col-md-2"><label for="is_active">Is Active</label></div>
+                <div class="col-8 col-md-4">
+                    <select asp-for="@Model.is_active">
+                        <option value=false>False</option>
+                        <option value=true>True</option>
+                    </select>
+                </div>
+                
+           
+            </div>
+            <div class="row">
+                <div class="col-4 col-md-2"><label for="default_receiving_location_id">Default Receiving Location ID</label></div>
+                <div class="col-8 col-md-4"><input type="text" asp-for="@Model.default_receiving_location_id" onkeypress="return event.keyCode != 13;" /></div>
+            </div>
+            <div class="row">
+                <div class="col-2 col-md-1">
+                    <button asp-page-handler="Submit">
+                        @if (Model.Label.ToUpper() == "CREATE NEW WAREHOUSE")
+                        {
+                            <i class="fas fa-save" style="color:green;" title="SAVE NEW WAREHOUSE"></i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-save" style="color:green;" title="UPDATE WAREHOUSE"></i>
+                        }
+                        </button>
+                    
+
+                    <input type="hidden" asp-for="@Model.Label" />
+                </div>
+                <div class="col-2 col-md-1">
+                    <button asp-page-handler="Cancel"><i class="fa-solid fa-x" style="color:red;" title="CANCEL"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+    }
+</body>
+</html>

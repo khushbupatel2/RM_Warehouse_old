@@ -1,0 +1,279 @@
+﻿@page
+@model RM_Warehouse.Pages.PickModel
+@{
+    ViewData["Title"] = "Pick";
+}
+@using System.Data;
+
+@*BELOW CODE WORKS FOR NESTED DATATABLES - COLLAPSE AND SHOW*@
+
+<script>
+    $(document).ready(function () {
+        $(".toptable tr.nested").hide();
+        $(".toptable td.showHide").on('click', function () {
+            if ($(this).html() == '+') {
+                $(this).html('-');
+                $(this).parent('tr').next('tr.nested').show();
+            }
+            else {
+                $(this).html('+');
+                $(this).parent('tr').next('tr.nested').hide();
+            }
+        });
+    });
+</script>
+
+@*BELOW CODE SHOWS ALERT MESSAGE FROM CODE BEHIND*@
+
+@if (TempData["ConfirmationMessage"] != null)
+{
+    <script type="text/javascript">
+        window.onload = function () {
+            alert("@TempData["ConfirmationMessage"]");
+        };
+    </script>
+}
+
+<form method="POST">
+@if (Model.flag_orders)
+{
+
+    @*BELOW GRID HAS OUTBOUND ORDERS WITH ORDER_STATUS='OPEN'
+    ALSO,NESTED TABLE HAS ITEMS DETAILS WITH IS_RECEIVED = false.
+    IT HAS PickItem BUTTON FOR EACH ORDER DEATILS.
+    *@
+
+    @if (PickModel.dt_orders != null)
+    {
+            <h4>ORDERS TO BE PICKED</h4>
+        <div class="table-responsive" style="max-height:450px;font-size:small;">
+            <table class="table table-bordered table-striped toptable" height="30%">
+                <thead class="FixedHeader">
+                    <tr>
+                        <td></td>
+                        <td>ORDER_ID</td>
+                        <td>ORDER_DATE</td>
+                        <td>PONUMBER</td>
+                        <td>ENTER_DATE</td>
+                        <td>ENTER_BY</td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @try
+                    {
+                            @foreach (DataRow row in PickModel.dt_orders.Rows)
+                        {
+                            <tr class="accordion">
+                                    <td class="showHide" style="cursor: pointer;font-size:x-large;">
+                                    +
+                                </td>
+                                <td>@row["ORDER_ID"]</td>
+                                <td>@row["ORDER_DATE"]</td>
+                                <td>@row["PONUMBER"]</td>
+                                <td>@row["ENTER_DATE"]</td>
+                                <td>@row["ENTER_BY"]</td>
+                            </tr>
+                            <tr class="nested">
+                                <td colspan="9">
+                                    @try
+                                    {
+                                        @foreach (DataTable table_1 in Model.nested_tables.Tables)
+                                        {
+                                            @if (table_1.TableName == row["ORDER_ID"].ToString())
+                                            {
+                                                <div class="table-responsive" style="max-height:450px;font-size:small;">                                            
+                                                    <table class="table table-bordered table-striped" height="30%">
+                                                        <thead class="LightGreen">
+                                                            <tr>
+                                                                <td></td>
+                                                                <td>ID</td>
+                                                                <td>ORDER_ID</td>
+                                                                <td>ITEM CODE</td>
+                                                                <td>ITEM_DESCRIPTION</td>
+                                                                <td>ORDERED QUANTITY</td>
+                                                                <td>PICKED QUANTITY</td>
+                                                                <td>PICKED BY</td>
+                                                                <td>PICKED DATE</td>
+                                                                <td>UNIT PRICE</td>
+                                                                <td>CURRENCY</td>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody> 
+                                                            @foreach (DataRow row_nested in table_1.Rows)
+                                                            {
+                                                                <tr>
+                                                                    <td>
+                                                                        <button asp-page-handler="PickItem" onclick="spinner();" asp-route-id_1="@row_nested["ID"]" asp-route-order_id_1="@row_nested["ORDER_ID"]" asp-route-item_code_1="@row_nested["Item_Code"]" asp-route-item_id_1="@row_nested["Item_ID"]" asp-route-ordered_quantity_1="@row_nested["ORDERED_QUANTITY"]" asp-route-picked_quantity_1="@row_nested["PICKED_QUANTITY"]" asp-route-item_desc_1="@row_nested["Item_Desc"]">
+                                                                            <i class="fa-solid fa-hand-spock" style="color:black;" title="PICK ITEM"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                    <td>@row_nested["ID"]</td>
+                                                                    <td>@row_nested["ORDER_ID"]</td>
+                                                                    <td>@row_nested["Item_Code"]</td>
+                                                                    <td>@row_nested["Item_Desc"]</td>
+                                                                    <td>@row_nested["ORDERED_QUANTITY"]</td>
+                                                                    <td>@row_nested["PICKED_QUANTITY"]</td>
+                                                                    <td>@row_nested["PICKED_BY"]</td>
+                                                                    <td>
+                                                                            @if (@row_nested["PICKED_DATE"] != DBNull.Value)
+                                                                            {
+                                                                                @Convert.ToDateTime(row_nested["PICKED_DATE"]).ToString("M/d/yyyy")
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                @row_nested["PICKED_DATE"]
+                                                                            }
+                                                                        </td>
+                                                                        <td>@row_nested["UNIT_PRICE"]</td>
+                                                                        <td>@row_nested["CURRENCY"]</td>
+
+                                                                    </tr>
+
+
+                                                            }
+                                                            
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+
+                                        }
+                                    }
+
+                                    catch (NullReferenceException ex)
+                                    {
+                                        return;
+                                    }
+                                </td>
+                            </tr>
+
+
+
+                        }
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        return;
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+        else
+        {
+            <br />
+            <span style="color:red;">NO RECORDS ARE FOUND</span>
+        }
+}
+@*
+BELOW FORM IS FOR PICK ITEM FORM.IT HAS PASSED VALUES.IT ALSO SHOWS LOCATIONS GRID WITH ITEMS PRESENT.IT HAS INPUTS 
+FOR PICKED QUANTITY FOR EACH ROW.WHERE USER CAN GIVE PICKED QUANTITY FROM THIS LOCATION.IT IS CHECKED AGAINST QTY_IN_HAND
+FOR THAT ROW.ALSO,TOTAL PICKED QUANTITY IS CHECKED AGAINST QUANTITY TO BE PICKED.*@
+
+@if (Model.flag_pick_form)
+    {
+        <h4>PICK ITEM FORM</h4>
+        <span style="color:red;" class="fs-4">@Model.Msg_Pick_Form</span>
+        <div class="row">
+            <div class="col-2 col-md-2">
+                <label for="order_id">Order ID:</label>
+            </div>
+            <div class="col-4 col-md-2">@PickModel.Order_ID</div>
+            <div class="col-4 col-md-3">
+                <label for="details_id">Details ID:</label>
+            </div>
+            <div class="col-2 col-md-1">@PickModel.details_id</div>
+
+        </div>
+        <div class="row">
+            <div class="col-2 col-md-2">
+                <label for="item_code">Item Code:</label>
+            </div>
+            <div class="col-4 col-md-2"><input asp-for="@PickModel.item_id" type="hidden" />@PickModel.item_code</div>
+            <div class="col-4 col-md-3">
+                <label for="quantity_to_be_picked">Quantity to be Picked:</label>
+            </div>
+            <div class="col-2 col-md-1">@PickModel.quantity_to_be_picked</div>
+
+        </div>
+        <div class="row">
+            <div class="col-2 col-md-2">
+                <label for="quantity_available">Quantity Available:</label>
+            </div>
+            <div class="col-4 col-md-2">@PickModel.quantity_available</div>
+        </div>
+        <div class="row">
+            <div class="col-4 col-md-2">
+                <label for="item_desc">Item Description:</label>
+            </div>
+            <div class="col-8 col-md-4">@PickModel.item_desc</div>
+            
+            
+        </div>
+
+        @if (Model.flag_locations)
+        {
+            @if (PickModel.dt_locations != null)
+            {
+                <div class="table-responsive" style="max-height:450px;font-size:small;">
+                    <table class="table table-bordered table-striped toptable" height="30%">
+                        <thead class="FixedHeader">
+                            <tr>
+                            <td></td>
+                            <td>LOCATION CODE</td>
+                            <td>QUANTITY IN HAND</td>
+                            <td>PICKED QUANTITY</td>
+                            <td>EXPIRY DATE</td>
+                            </tr>
+                        </thead>
+
+                <tbody> 
+                    @foreach (DataRow row_nested in PickModel.dt_locations.Rows)
+                    {
+                        <tr>
+                        <td><input name="AreChecked" type="checkbox" value="@row_nested["Inv_ID"]" />
+                            <input asp-for="@Model.Inv_Id" value="@row_nested["Inv_ID"]" type="hidden" />
+                            <input asp-for="@Model.Details_Id" value="@row_nested["ID"]" type="hidden" />
+                            <input asp-for="@Model.Item_Id" value="@row_nested["Item_ID"]" type="hidden" />
+                            <input asp-for="@Model.Location_Id" value="@row_nested["Location_ID"]" type="hidden" />
+                            <input asp-for="@Model.Qty_In_Hand" value="@row_nested["QTY_In_Hand"]" type="hidden" />
+                        </td>
+                        <td>@row_nested["Location_Code"]</td>
+                        <td>@row_nested["QTY_In_Hand"]</td>
+                        <td><input type="number" asp-for="@Model.Picked_Quantity" onkeypress="return event.keyCode != 13;" /></td>
+                        <td>
+                            @if (@row_nested["EXPIRY_DATE"] != DBNull.Value)
+                            {
+                                @Convert.ToDateTime(row_nested["EXPIRY_DATE"]).ToString("M/d/yyyy")
+                                <input asp-for="@Model.Expiry_Date" value="@Convert.ToDateTime(row_nested["EXPIRY_DATE"]).ToString("M/d/yyyy")" type="hidden" />
+                            }
+                            else
+                            {
+                                <input asp-for="@Model.Expiry_Date" value=null type="hidden" />
+                                @row_nested["EXPIRY_DATE"]
+                            }
+                        </td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>
+                            <button asp-page-handler="PickOrder" onclick="spinner();">
+                                <i class="fa-solid fa-hand-spock" style="color:blue;" title="PICK ORDER"></i>
+                            </button>
+
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
+                </div>
+            }
+            else
+            {
+                <br />
+                <span style="color:red;">NO RECORDS ARE FOUND</span>
+            }
+        }
+    }
+</form>
